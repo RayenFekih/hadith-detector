@@ -1,0 +1,21 @@
+[project]
+name = "hadith-detector"
+version = "0.1.0"
+description = "API foundations for detecting hadith quotations in Arabic text"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "python-dotenv",
+    "pyyaml",
+    "quran-detector>=0.0.2",
+    "pandas>=3.0.6",
+    "datasets>=5.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.6",
+]

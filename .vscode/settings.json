@@ -1,0 +1,23 @@
+{
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "explicit",
+		"source.fixAll.ruff": "explicit"
+	},
+	"python.languageServer": "Pylance",
+	"python.testing.pytestArgs": [
+		"tests"
+	],
+	"python.testing.unittestEnabled": false,
+	"python.testing.pytestEnabled": true,
+	"terminal.integrated.env.linux": {
+		"PYTHONPATH": "${workspaceFolder}/src"
+	},
+	"python.analysis.extraPaths": [
+		"./src"
+	],
+	"[python]": {
+		"editor.defaultFormatter": "charliermarsh.ruff",
+		"editor.formatOnSave": true
+	}
+}

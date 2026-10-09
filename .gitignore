@@ -1,0 +1,63 @@
+# === Python ignores ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.db
+*.sqlite3
+
+# Virtual environment folders
+venv/
+env/
+.venv/
+.env/
+ENV/
+*.env
+.env
+
+# Logs
+*.log
+logs/*
+!logs/.gitkeep
+
+# IDE settings
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secret / private keys
+*secret*.json
+*key*.json
+
+# Deployment / containers
+*.pid
+*.sock
+*.crt
+*.pem
+
+# Coverage / test artifacts
+*.coverage
+htmlcov/
+
+# Cache folders
+.cache/
+.ruff_cache/
+dist/
+build/
+
+# Docker-related
+docker-compose.override.yml
+
+# Data
+data/*
+!data/.gitkeep
+!data/README.md
+.env.*
+!.env.example
+.ipynb_checkpoints/
+.pytest_cache/
+.coverage*
+*.egg-info/
