@@ -1,0 +1,16 @@
+include README.md CONTRIBUTING.md CHANGELOG.md LICENSE pyproject.toml
+recursive-include src/hadith_detector *.py py.typed
+recursive-include tests *.py
+recursive-include docs *.md
+include data/README.md
+prune .github
+prune .vscode
+prune .cache
+prune .ruff_cache
+prune .mypy_cache
+prune .pytest_cache
+prune .venv
+prune notebooks
+prune others
+prune logs
+global-exclude *.py[cod] .gitkeep

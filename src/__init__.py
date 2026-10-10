@@ -1,1 +1,0 @@
-"""Hadith Detector application foundations."""

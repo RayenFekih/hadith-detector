@@ -45,6 +45,7 @@ htmlcov/
 # Cache folders
 .cache/
 .ruff_cache/
+.mypy_cache/
 dist/
 build/
 
@@ -61,3 +62,7 @@ data/*
 .pytest_cache/
 .coverage*
 *.egg-info/
+
+# Local research (preserved, not part of the supported package)
+notebooks/*
+others/*

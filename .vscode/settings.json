@@ -10,12 +10,6 @@
 	],
 	"python.testing.unittestEnabled": false,
 	"python.testing.pytestEnabled": true,
-	"terminal.integrated.env.linux": {
-		"PYTHONPATH": "${workspaceFolder}/src"
-	},
-	"python.analysis.extraPaths": [
-		"./src"
-	],
 	"[python]": {
 		"editor.defaultFormatter": "charliermarsh.ruff",
 		"editor.formatOnSave": true

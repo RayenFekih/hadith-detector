@@ -1,21 +1,63 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "hadith-detector"
-version = "0.1.0"
-description = "API foundations for detecting hadith quotations in Arabic text"
+dynamic = ["version"]
+description = "Foundations for offline Arabic Hadith quotation detection"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "python-dotenv",
-    "pyyaml",
-    "quran-detector>=0.0.2",
-    "pandas>=3.0.6",
-    "datasets>=5.1.0",
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Mohamed Rayen Fekih"}]
+dependencies = []
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
 
+[project.urls]
+Repository = "https://github.com/RayenFekih/hadith-detector"
+Issues = "https://github.com/RayenFekih/hadith-detector/issues"
+
 [dependency-groups]
-dev = [
-    "ruff>=0.16.6",
-]
+dev = ["pytest>=8", "ruff>=0.16.6", "mypy>=1.15", "build>=1.2", "twine>=6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hadith_detector*"]
+
+[tool.setuptools.package-data]
+hadith_detector = ["py.typed"]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["notebooks", "others", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["hadith_detector"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/hadith_detector"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "-ra"]
+markers = ["packaging: build and clean-install checks (requires build dependencies)"]
