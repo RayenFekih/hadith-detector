@@ -2,6 +2,8 @@ include README.md CONTRIBUTING.md CHANGELOG.md LICENSE pyproject.toml
 recursive-include src/hadith_detector *.py py.typed
 recursive-include tests *.py
 recursive-include docs *.md
+recursive-include tools *.py *.json
+include uv.lock
 include data/README.md
 prune .github
 prune .vscode

@@ -2,8 +2,9 @@
 
 ## Workflow and current status
 
-Phase 1 establishes an installable library foundation only. Detection and data
-preparation are not implemented. Each phase depends on acceptance of its predecessor:
+Phase 1 established the library foundation. Phase 2 implements pinned corpus
+preparation and shared tokenization; detection and indexing remain unimplemented.
+Each phase depends on acceptance of its predecessor:
 present changes, checks, limitations, and proposed commits; stop for review and
 approval before starting the next. Publishing is separately approval-gated.
 
@@ -15,7 +16,7 @@ approval before starting the next. Publishing is separately approval-gated.
   letter equivalences (`ة → ه`, `ى → ي`, alif variants), diacritic handling, tatweel
   removal, and presentation-form handling while preserving token boundaries and offsets.
 - Preserve word order; exact matching means equality after normalization, not literal
-  character identity. Version and test the normalization policy in Phase 2.
+  character identity. Normalization version 1 is implemented and tested in Phase 2.
 - Default to five aligned input words; spelling and omission budgets default to zero.
 - Count spelling errors as total character Levenshtein edits across aligned words.
   Omissions skip internal source words; skipped words do not count toward the minimum.
@@ -72,13 +73,14 @@ URL, matched source substring/offsets, and fuzzy details.
 
 ## Decisions for later milestone plans
 
-Before implementing the relevant phase, settle record/artifact encoding and exact
-normalization/tokenization rules (Phase 2), index choice and occurrence representation
+Phase 2 uses canonical JSONL, mapped compatibility normalization, and matching barriers;
+see [data preparation](data-preparation.md). Before implementing the relevant phase,
+settle index choice and occurrence representation
 (Phase 3), fuzzy limits and completeness policy (Phase 4), and final model fields,
 configuration and exception contracts (Phase 5). Benchmark budgets belong in Phase 6.
 Revisit this roadmap openly when implementation evidence requires a change.
 
-Code remains MIT; corpus terms require separate verification. Git stores code,
+Code remains MIT; approved corpus terms and attribution are documented separately. Git stores code,
 small fixtures and reports; large downloads/derived artifacts remain outside Git.
 Approved runtime resources later ship in Python distributions, with reproducible
 large artifacts in release assets. No LFS or DVC without a separate decision.

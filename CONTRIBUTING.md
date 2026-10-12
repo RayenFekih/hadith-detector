@@ -23,6 +23,13 @@ an sdist without Git metadata, and install both wheels in fresh environments.
 These development operations may access the network; runtime imports do not.
 Use `uv run pytest -m "not packaging"` for the fast foundation checks.
 
+Phase 2 preprocessing uses `uv sync --locked --group data`. Run its tests with
+`uv run --frozen --group data pytest`; the default environment skips the synthetic
+pipeline tests when preprocessing dependencies are absent. Shared normalization
+tests run on every supported Python. Full builds require Python 3.14. Ordinary CI
+uses synthetic Parquet data and does not fetch the real corpus. See the
+[data-preparation guide](docs/data-preparation.md) for full-corpus validation.
+
 Ruff handles linting and formatting (100-character lines, Python 3.11 syntax).
 Mypy checks package code in strict mode. Regenerate `uv.lock` with `uv lock` only
 when dependencies change, then rerun checks. No pre-commit hook is required.
@@ -39,6 +46,13 @@ Phase 1 commit boundaries:
 1. `chore: establish installable library foundation`
 2. `test: validate package builds and add CI`
 3. `docs: document project status and phased roadmap`
+
+Phase 2 proposed commit boundaries:
+
+1. `data: pin QuranLab sources and document provenance`
+2. `feat: add mapped Arabic normalization and tokenization`
+3. `feat: add reproducible corpus preparation`
+4. `docs: record full-corpus preparation validation`
 
 Commit and push when requested. Preserve existing history and origin; never
 force-push. Remote changes, destructive Git operations, release tags, public
@@ -59,8 +73,9 @@ patch versions contain compatible fixes. Document incompatibilities and manually
 move Unreleased notes into a dated release section when releasing.
 
 Record schemas, normalization, and index formats have independent versions.
-Dataset builds identify pinned upstream revision, preprocessing revision,
-configuration, and checksums. Corpus rights must be verified separately from MIT.
+Dataset builds identify pinned upstream revision, preprocessing code fingerprint,
+configuration, and checksums. Corpus rights are separate from MIT; source-specific
+terms and attribution are documented for the approved Arabic configurations.
 No publishing workflow is enabled in Phase 1.
 
 Local notebooks and evaluation files are preserved but are not supported package

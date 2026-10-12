@@ -3,9 +3,11 @@
 An open-source Python library being developed to detect Arabic Hadith quotations
 in arbitrary text and return independently supported source references.
 
-**Status: Phase 1 foundation.** The package installs and exposes `__version__`.
-Detection, annotation, source retrieval, corpus preparation, and indexes are
-**planned and not implemented**. No corpus is bundled and no release is published.
+**Status: Phase 2 data preparation.** The package installs and exposes `__version__`.
+Repository tools can acquire and validate the pinned corpus and produce normalized
+tokens with original offsets. Detection, annotation, source retrieval, and search
+indexes are **planned and not implemented**. No corpus is bundled in the installed
+library and no release is published.
 
 ## Development installation
 
@@ -21,10 +23,16 @@ The foundation has no runtime dependencies. Research notebooks have separate,
 unsupported exploratory environments; their dependencies are not installed here.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for checks and the review workflow.
 
+To prepare data, install the separate preprocessing group with
+`uv sync --locked --group data` and follow the
+[data-preparation guide](docs/data-preparation.md). Builds use Python 3.14 and
+verified local inputs; build and verification operations work offline.
+
 ## Planned capabilities
 
 - Exact and partial ordered quotation matching, with a default minimum of five words.
-- Arabic normalization, diacritic handling, multiple passages, and original character offsets.
+- Multiple detected passages with original character offsets, using the implemented
+  Arabic normalization and diacritic handling foundation.
 - Optional spelling-error and omitted-word tolerance, both disabled by default.
 - All independently verified references supporting each selected passage.
 - Longest-supported-match selection for overlaps and deterministic output.
@@ -59,8 +67,8 @@ similarity, embeddings, LLMs, external runtime APIs, narration-family assumption
 or expansion of abbreviated narrations will be used.
 
 The code is [MIT licensed](LICENSE). Dataset and digitization rights are separate:
-QuranLab's provenance and licensing summaries require configuration-specific
-verification before public redistribution. See [data/README.md](data/README.md).
+The maintainer approved proceeding with the selected Arabic configurations; their
+pinned provenance and attribution are recorded in [data/README.md](data/README.md).
 Existing evaluation examples are provisional, not definitive ground truth.
 
 See the [implementation roadmap](docs/roadmap.md) and [changelog](CHANGELOG.md).

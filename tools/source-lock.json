@@ -1,0 +1,49 @@
+{
+  "configs": [
+    {
+      "collection": "bukhari",
+      "expected_records": 7580,
+      "name": "bukhari-ar",
+      "path": "bukhari-ar/train-00000-of-00001.parquet"
+    },
+    {
+      "collection": "muslim",
+      "expected_records": 7360,
+      "name": "muslim-ar",
+      "path": "muslim-ar/train-00000-of-00001.parquet"
+    }
+  ],
+  "files": [
+    {
+      "path": "bukhari-ar/train-00000-of-00001.parquet",
+      "sha256": "11a0269164bc3da053068772d755221d2a0768cf05bd2feaeb0500a3d9d647d4"
+    },
+    {
+      "path": "muslim-ar/train-00000-of-00001.parquet",
+      "sha256": "25f638e1e759ca246a1235fe296ab803599173ca0660c078ac29f40c7f3c0c3b"
+    },
+    {
+      "path": "README.md",
+      "sha256": "fc207de3c37457f4cd02075cdd1f76562905f7b5efe7cdaf3c0e2ae0a51bc9fc"
+    },
+    {
+      "path": "LICENSES.md",
+      "sha256": "211ab9b99234f8b4c99f4e295cd29f0524d1a8508b10916c2ce84aa28ee4fde3"
+    },
+    {
+      "path": "SOURCES.md",
+      "sha256": "a395c79251f54b1b780a475c32480f968d277b71a04017af18227df3e9545e53"
+    },
+    {
+      "path": "metadata/configs.csv",
+      "sha256": "5c397a92a7449a568104ff2e6d6e60bdea68d7d0f19556591871be38693c210c"
+    },
+    {
+      "path": "metadata/collections.csv",
+      "sha256": "806aef24f330464c3b9bb0f2526ed1f962d12c6edecc8d0047633c324189f11b"
+    }
+  ],
+  "lock_version": 1,
+  "repository": "quranlab/hadith",
+  "revision": "cc6972dae1f46f5f5e2b65e877d24c4539bc4391"
+}

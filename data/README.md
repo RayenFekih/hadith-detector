@@ -5,21 +5,35 @@ using only `bukhari-ar` and `muslim-ar`. Local inspection reports 7,580 and 7,36
 records respectively; these are observations, not hardcoded integrity guarantees.
 Duplicate text must retain every original identity, and reference URLs may be null.
 
-No runtime corpus is bundled in Phase 1. Existing local CSVs, archives, inspection
+No runtime corpus is bundled in Phase 2. Existing local CSVs, archives, inspection
 reports, notebooks, and evaluation files remain ignored and untouched. They must
 not be silently treated as the pinned source for a reproducible build.
 
-## Rights gate
+## Approved provenance
 
 MIT covers project code, not third-party data. Review the pinned dataset's
 [card](https://huggingface.co/datasets/quranlab/hadith),
 [LICENSES.md](https://huggingface.co/datasets/quranlab/hadith/blob/main/LICENSES.md),
 [SOURCES.md](https://huggingface.co/datasets/quranlab/hadith/blob/main/SOURCES.md),
-configuration metadata, and applicable upstream terms. Current summaries disagree
-about provenance and where binding terms are stored. Phase 2 must document the
-terms for both selected configurations before public corpus redistribution.
+configuration metadata, and applicable upstream terms. The maintainer confirmed
+that licenses are acceptable and authorized proceeding with both Arabic configurations.
+Their pinned configuration metadata identifies classical Arabic text as public domain,
+compilation via `fawazahmed0/hadith-api`, and commercial use as allowed. The upstream
+[license](https://github.com/fawazahmed0/hadith-api/blob/1/LICENSE) is the Unlicense.
+Credit QuranLab and fawazahmed0/hadith-api and retain the original provenance notices.
+Translations and unrelated configurations are outside this build.
 
-## Artifact boundaries (planned)
+The general LICENSES summary mentions the ODbL source broadly; configuration metadata
+and SOURCES distinguish it as the source for Ahmad/Darimi, which are not included.
+These facts and the maintainer's decision are recorded rather than rewriting upstream notices.
+
+All seven downloaded files are pinned by revision and SHA-256 in
+[`tools/source-lock.json`](../tools/source-lock.json). The raw provenance documents
+are retained with the ignored source snapshot. See
+[data preparation](../docs/data-preparation.md) and the
+[acceptance report](../docs/phase2-validation.md).
+
+## Artifact boundaries
 
 - Git: preprocessing code, small synthetic fixtures, manifests, checksums, and reports.
 - Local build workspace: raw downloads, preserved records, intermediate tokens and offsets.
@@ -28,7 +42,8 @@ terms for both selected configurations before public corpus redistribution.
 
 Keep source records, preprocessing tools, derived artifacts, and runtime resources
 separate. Preserve all original fields and source text without normalization edits.
-Version record schema, normalization, and index format independently; pin upstream
+Version record schema and normalization independently; the index format is deferred.
+Pin upstream
 and preprocessing revisions and record configuration and checksums.
 Do not introduce LFS or DVC or commit large artifacts without discussing tradeoffs.
 

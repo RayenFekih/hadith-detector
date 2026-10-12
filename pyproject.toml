@@ -30,6 +30,7 @@ Issues = "https://github.com/RayenFekih/hadith-detector/issues"
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.16.6", "mypy>=1.15", "build>=1.2", "twine>=6"]
+data = ["huggingface-hub>=1", "pyarrow>=20"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -60,4 +61,7 @@ files = ["src/hadith_detector"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib", "-ra"]
-markers = ["packaging: build and clean-install checks (requires build dependencies)"]
+markers = [
+    "packaging: build and clean-install checks (requires build dependencies)",
+    "data: synthetic preprocessing tests (requires the data dependency group)",
+]

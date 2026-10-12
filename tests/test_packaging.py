@@ -50,6 +50,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         )
         assert "hadith_detector/__init__.py" in names
         assert "hadith_detector/py.typed" in names
+        assert "hadith_detector/_text.py" in names
         assert metadata["Name"] == "hadith-detector"
         assert metadata["Requires-Python"] == ">=3.11"
         assert metadata["License-Expression"] == "MIT"
@@ -57,6 +58,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
+        assert not any(n.endswith((".jsonl", ".parquet")) for n in names)
     with zipfile.ZipFile(rebuilt) as archive:
         rebuilt_metadata = BytesParser().parsebytes(
             archive.read(next(n for n in archive.namelist() if n.endswith("/METADATA")))
@@ -67,6 +69,9 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "src/hadith_detector/py.typed" in relative
         assert "docs/roadmap.md" in relative
         assert "data/README.md" in relative
+        assert "tools/prepare_data.py" in relative
+        assert "tools/source-lock.json" in relative
+        assert "uv.lock" in relative
         forbidden = {
             ".git",
             ".venv",
