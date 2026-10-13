@@ -18,11 +18,15 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Repository-only exhaustive exact-match oracle and positional/2-/3-/5-word prototypes.
 - Direct substring-enumeration checks, deterministic query generation and isolated memory/latency benchmarks.
 
-The index experiments do not expose a public detector or select a production format.
+- Compact versioned trigram resources with complete unigram fallback, checksums,
+  structural validation, and deterministic offline construction.
+- Provisional `HadithDetector.from_directory()`, exact detection and source lookup;
+  typed serializable results with all supporting references and occurrences.
+- Runtime/oracle comparison, corruption tests, metadata isolation and clean-install checks.
 
 ### Changed
 
 - Replaced the unused application scaffold with a library using no runtime dependencies.
 
-Detection, annotation, and corpus indexes remain planned. Runtime distributions
+Fuzzy matching, annotation and bundled resources remain planned. Runtime distributions
 contain neither the corpus nor preprocessing dependencies.

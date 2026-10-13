@@ -3,8 +3,10 @@
 ## Workflow and current status
 
 Phase 1 established the library foundation. Phase 2 implements pinned corpus
-preparation and shared tokenization. Phase 3A adds repository-only exact-match and
-index experiments; production indexing and the public detector remain unimplemented.
+preparation and shared tokenization. Phase 3A benchmarked indexes; the maintainer
+approved the three-word index with unigram fallback. Phase 3B implements compact
+resources and a provisional exact detector with explicit local resources. See the
+[runtime guide](runtime-index.md) and [validation report](phase3b-validation.md).
 Each phase depends on acceptance of its predecessor:
 present changes, checks, limitations, and proposed commits; stop for review and
 approval before starting the next. Publishing is separately approval-gated.
@@ -48,8 +50,8 @@ approval before starting the next. Publishing is separately approval-gated.
 
 Phase 3A runs the comparison and stops for review of the
 [measurements and Phase 3B proposal](phase3-index-benchmark.md).
-See [benchmark usage](index-benchmark.md). No production index is selected or
-implemented until the benchmark review and Phase 3B approval.
+See [benchmark usage](index-benchmark.md). The approved trigram/unigram design is
+implemented in Phase 3B. Phase 4 requires a separate plan and approval.
 
 Compare a straightforward exhaustive baseline, a positional inverted index, and
 2-, 3-, and 5-word n-gram indexes using identical normalization and queries.
@@ -72,8 +74,9 @@ get_hadith(hadith_key)
 HadithDetector(...)
 ```
 
-Typed dataclasses will provide serialization, original input substrings/offsets,
-match information, and all independently supported references. Each reference
+Phase 3B implements provisional typed dataclasses with serialization, original input
+substrings/offsets and all supporting exact references. The final surface will add
+fuzzy matching details and annotation. Each reference
 exposes identifiers, collection/numbering, complete original narration, nullable
 URL, matched source substring/offsets, and fuzzy details.
 
@@ -81,8 +84,9 @@ URL, matched source substring/offsets, and fuzzy details.
 
 Phase 2 uses canonical JSONL, mapped compatibility normalization, and matching barriers;
 see [data preparation](data-preparation.md). Before implementing the relevant phase,
-settle index choice and occurrence representation
-(Phase 3), fuzzy limits and completeness policy (Phase 4), and final model fields,
+use the approved index and complete occurrence representation described in
+[the runtime guide](runtime-index.md), and settle fuzzy limits and completeness policy
+(Phase 4), final model fields,
 configuration and exception contracts (Phase 5). Benchmark budgets belong in Phase 6.
 Revisit this roadmap openly when implementation evidence requires a change.
 

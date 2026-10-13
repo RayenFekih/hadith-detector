@@ -37,6 +37,11 @@ need no benchmark dependency; only the subprocess memory-measurement smoke test
 needs psutil. Full-corpus performance experiments are local and never run in CI.
 See [benchmark usage](docs/index-benchmark.md).
 
+Phase 3B runtime and synthetic index-builder tests need no optional dependencies
+and run across the supported Python matrix. Full-corpus index construction uses
+Python 3.14 and the verified prepared artifacts; see [runtime resources](docs/runtime-index.md).
+Fresh-process validation measurements use the separate `benchmark` group.
+
 Ruff handles linting and formatting (100-character lines, Python 3.11 syntax).
 Mypy checks package code in strict mode. Regenerate `uv.lock` with `uv lock` only
 when dependencies change, then rerun checks. No pre-commit hook is required.
@@ -66,6 +71,12 @@ Phase 3A proposed commit boundaries:
 1. `test: establish exhaustive exact-match oracle`
 2. `perf: benchmark positional and n-gram indexes`
 3. `docs: record index benchmark and recommendation`
+
+Phase 3B proposed commit boundaries:
+
+1. `feat: add compact offline index resources`
+2. `feat: implement provisional exact detector`
+3. `docs: record runtime validation and API usage`
 
 Commit and push when requested. Preserve existing history and origin; never
 force-push. Remote changes, destructive Git operations, release tags, public

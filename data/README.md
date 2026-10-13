@@ -42,7 +42,9 @@ are retained with the ignored source snapshot. See
 
 Keep source records, preprocessing tools, derived artifacts, and runtime resources
 separate. Preserve all original fields and source text without normalization edits.
-Version record schema and normalization independently; the index format is deferred.
+Version record schema, normalization and index format independently. Phase 3B uses
+index format 1; generated compact runtime directories remain ignored and unbundled
+until Phase 7. See [runtime resources](../docs/runtime-index.md).
 Pin upstream
 and preprocessing revisions and record configuration and checksums.
 Do not introduce LFS or DVC or commit large artifacts without discussing tradeoffs.

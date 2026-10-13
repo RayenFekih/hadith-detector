@@ -189,3 +189,9 @@ Proposed commits (only when requested):
 
 No production index selection, Phase 3B implementation, commits or pushes were
 performed in this milestone. See [benchmark usage](index-benchmark.md).
+
+## Subsequent decision
+
+The maintainer approved the three-word index with unigram fallback and authorized
+Phase 3B. The proposal above is the historical Phase 3A review record; current
+implementation and validation are documented in [Phase 3B](phase3b-validation.md).
