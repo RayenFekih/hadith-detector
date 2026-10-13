@@ -11,7 +11,14 @@ import hadith_detector
 
 def test_version_matches_distribution() -> None:
     assert hadith_detector.__version__ == version("hadith-detector")
-    assert hadith_detector.__all__ == ["__version__"]
+    assert set(hadith_detector.__all__) == {
+        "__version__",
+        "HadithDetector",
+        "HadithRecord",
+        "SourceOccurrence",
+        "HadithReference",
+        "Detection",
+    }
 
 
 def test_import_outside_repository_has_no_filesystem_side_effects(tmp_path: Path) -> None:

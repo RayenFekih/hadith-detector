@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hadith-detector"
 dynamic = ["version"]
-description = "Foundations for offline Arabic Hadith quotation detection"
+description = "Offline exact Arabic Hadith quotation detection with explicit local resources"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [{name = "Mohamed Rayen Fekih"}]
 dependencies = []
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
