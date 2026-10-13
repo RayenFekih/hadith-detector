@@ -3,7 +3,8 @@
 ## Workflow and current status
 
 Phase 1 established the library foundation. Phase 2 implements pinned corpus
-preparation and shared tokenization; detection and indexing remain unimplemented.
+preparation and shared tokenization. Phase 3A adds repository-only exact-match and
+index experiments; production indexing and the public detector remain unimplemented.
 Each phase depends on acceptance of its predecessor:
 present changes, checks, limitations, and proposed commits; stop for review and
 approval before starting the next. Publishing is separately approval-gated.
@@ -44,6 +45,11 @@ approval before starting the next. Publishing is separately approval-gated.
 | 7. Release | Bundle approved resources; clean installation and offline validation; prepare initial release process. | Wheel/sdist rebuilds, supported Python versions, network-disabled detection, no runtime rebuild or download, resource integrity and format compatibility. | Installation, attribution, release notes and checklist. `build: bundle validated runtime artifacts`; `docs: prepare initial release`. |
 
 ## Index benchmark (Phase 3)
+
+Phase 3A runs the comparison and stops for review of the
+[measurements and Phase 3B proposal](phase3-index-benchmark.md).
+See [benchmark usage](index-benchmark.md). No production index is selected or
+implemented until the benchmark review and Phase 3B approval.
 
 Compare a straightforward exhaustive baseline, a positional inverted index, and
 2-, 3-, and 5-word n-gram indexes using identical normalization and queries.

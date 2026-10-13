@@ -30,6 +30,13 @@ tests run on every supported Python. Full builds require Python 3.14. Ordinary C
 uses synthetic Parquet data and does not fetch the real corpus. See the
 [data-preparation guide](docs/data-preparation.md) for full-corpus validation.
 
+Index experiments use `uv sync --locked --group benchmark`. Run the synthetic
+worker smoke test with `uv run --frozen --group benchmark pytest tests/test_exact_benchmark.py`.
+The exhaustive oracle, retrieval, serialization and randomized reference tests
+need no benchmark dependency; only the subprocess memory-measurement smoke test
+needs psutil. Full-corpus performance experiments are local and never run in CI.
+See [benchmark usage](docs/index-benchmark.md).
+
 Ruff handles linting and formatting (100-character lines, Python 3.11 syntax).
 Mypy checks package code in strict mode. Regenerate `uv.lock` with `uv lock` only
 when dependencies change, then rerun checks. No pre-commit hook is required.
@@ -53,6 +60,12 @@ Phase 2 proposed commit boundaries:
 2. `feat: add mapped Arabic normalization and tokenization`
 3. `feat: add reproducible corpus preparation`
 4. `docs: record full-corpus preparation validation`
+
+Phase 3A proposed commit boundaries:
+
+1. `test: establish exhaustive exact-match oracle`
+2. `perf: benchmark positional and n-gram indexes`
+3. `docs: record index benchmark and recommendation`
 
 Commit and push when requested. Preserve existing history and origin; never
 force-push. Remote changes, destructive Git operations, release tags, public

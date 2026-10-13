@@ -3,11 +3,16 @@
 An open-source Python library being developed to detect Arabic Hadith quotations
 in arbitrary text and return independently supported source references.
 
-**Status: Phase 2 data preparation.** The package installs and exposes `__version__`.
+**Status: Phase 3A index experiments.** The package installs and exposes `__version__`.
 Repository tools can acquire and validate the pinned corpus and produce normalized
-tokens with original offsets. Detection, annotation, source retrieval, and search
-indexes are **planned and not implemented**. No corpus is bundled in the installed
+tokens with original offsets. Public detection, annotation, source retrieval, and
+production search indexes are **planned and not implemented**. No corpus is bundled in the installed
 library and no release is published.
+
+Repository-only exact-matching prototypes compare an independent exhaustive oracle
+with positional and 2-, 3-, and 5-word indexes. These are benchmark tools, not a
+public detector API. See [benchmark usage](docs/index-benchmark.md) and the
+[measured results and Phase 3B proposal](docs/phase3-index-benchmark.md).
 
 ## Development installation
 

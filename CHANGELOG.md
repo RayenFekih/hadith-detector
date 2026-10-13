@@ -15,6 +15,10 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Shared versioned Arabic tokenization with original spans and matching barriers.
 - Canonical JSONL artifacts, build manifests, warning reports, and reproducibility checks.
 - Synthetic preprocessing CI and full-corpus acceptance evidence.
+- Repository-only exhaustive exact-match oracle and positional/2-/3-/5-word prototypes.
+- Direct substring-enumeration checks, deterministic query generation and isolated memory/latency benchmarks.
+
+The index experiments do not expose a public detector or select a production format.
 
 ### Changed
 
