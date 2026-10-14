@@ -3,7 +3,7 @@
 An offline Python library for finding Arabic Hadith quotations and returning
 independently supporting source references.
 
-**Status: Phase 3B, provisional exact detector.** Exact and partial ordered matching,
+**Status: provisional exact detector, with Phase 4A fuzzy experiments.** Exact and partial ordered matching,
 multiple passages, source lookup and typed results work with explicitly supplied
 local resources. No corpus is bundled and no release is published. Fuzzy matching,
 omitted-word tolerance, annotation and top-level convenience functions remain planned.
@@ -11,7 +11,14 @@ omitted-word tolerance, annotation and top-level convenience functions remain pl
 ## Installation and local resources
 
 Python 3.11–3.14 are supported; development and resource construction use Python 3.14.
-The installed library has no runtime dependencies.
+The installed library currently has no runtime dependencies. Offline operation is
+required; dependency-free implementation is not a permanent architectural constraint.
+Well-maintained dependencies may be adopted after review of their benefits and costs.
+
+Repository-only Phase 4A tools compare complete fuzzy retrieval strategies and
+pure-Python versus RapidFuzz bounded word distance. These experiments do not add
+fuzzy options to the installed detector. See [fuzzy benchmark usage](docs/fuzzy-benchmark.md)
+and [the measurements and Phase 4B recommendation](docs/phase4-fuzzy-benchmark.md).
 
 ```sh
 uv sync --locked

@@ -7,6 +7,12 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Independent exhaustive fuzzy alignment oracle and tiny direct path enumeration.
+- Complete first-word, guaranteed-anchor and trigram-hybrid retrieval experiments,
+  with deterministic word traces, internal source omissions and combined budgets.
+- Repository-only RapidFuzz 3.14.6 comparison, isolated timing/memory tooling and
+  supported-version backend compatibility checks. Installed dependencies are unchanged.
+
 - Installable `hadith_detector` foundation with metadata-derived version and typing marker.
 - Python 3.11–3.14 policy, uv lockfile, Ruff, strict mypy, pytest, and build validation.
 - CI covering Linux and Windows, including clean wheel and sdist installation checks.
@@ -25,6 +31,9 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Runtime/oracle comparison, corruption tests, metadata isolation and clean-install checks.
 
 ### Changed
+
+- Dependency policy now requires offline operation while allowing evidence-based
+  adoption of maintained dependencies; zero dependencies is a current implementation choice.
 
 - Replaced the unused application scaffold with a library using no runtime dependencies.
 

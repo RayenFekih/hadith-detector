@@ -11,6 +11,14 @@ Each phase depends on acceptance of its predecessor:
 present changes, checks, limitations, and proposed commits; stop for review and
 approval before starting the next. Publishing is separately approval-gated.
 
+Phase 4A adds an independent fuzzy oracle, complete retrieval experiments and a
+bounded-distance comparison with RapidFuzz. The installed exact detector remains
+unchanged. On 2026-10-14 the maintainer selected RapidFuzz as the sole required
+production distance engine for Phase 4B, retaining the independent Python implementations
+only in repository tests and benchmarks. No dual runtime backends or acceleration extra
+are planned. Review [Phase 4A evidence and the revised proposal](phase4-fuzzy-benchmark.md)
+before starting Phase 4B; the installed dependencies have not yet changed.
+
 ## Architectural commitments
 
 - Search complete narrations with one engine. No Matn/Isnad extraction or mode parameter.
@@ -33,6 +41,12 @@ approval before starting the next. Publishing is separately approval-gated.
   reproduce reported original substrings, including relevant combining marks.
 - Reuse immutable corpus/index resources across calls. Runtime stays fully offline,
   without rebuilding indexes, LLMs, embeddings, or external APIs.
+- Offline operation is required; zero runtime dependencies is not. Well-maintained
+  dependencies may be used in any phase when they improve performance, reliability
+  or maintainability. Existing zero-dependency implementations describe current choices.
+- Phase 4 ranks fuzzy cost ties by character edits, then source omissions. Return all
+  budget-valid supporting occurrences, with one lowest-cost canonical word trace per
+  source span. Internal symbol-expansion omissions are permitted; endpoints stay whole.
 
 ## Phases and approval gates
 
