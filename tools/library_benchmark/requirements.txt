@@ -1,0 +1,7 @@
+rapidfuzz==3.14.6
+psutil==7.2.2
+numpy==2.3.5
+pyroaring==1.2.0
+msgspec==0.22.0
+orjson==3.13.0
+marisa-trie==1.4.1
