@@ -3,11 +3,12 @@
 An offline Python library for finding Arabic Hadith quotations and returning
 independently supporting source references.
 
-**Status: provisional exact and fuzzy detector (Phase 4B).** Exact and partial ordered matching,
-multiple passages, source lookup and typed results work with explicitly supplied
-local resources. Character-error tolerance and internal source-word omissions work
-together. No corpus is bundled and no release is published. Annotation and top-level
-convenience functions remain planned.
+**Status: public API finalized in Phase 5A.** Exact and fuzzy ordered matching,
+multiple passages, configuration, source lookup, dictionary round trips and
+convenience calls work with explicit local resources. Character edits and internal
+source-word omissions work together. One combined Bukhari/Muslim corpus will be
+bundled in Phase 7; no corpus is bundled or release published yet. HTML annotation
+remains planned for Phase 5B.
 
 ## Installation and local resources
 
@@ -37,12 +38,12 @@ stay outside Git. Research notebooks use separate exploratory environments.
 Current builds produce index format v2. Existing v1 directories are rejected;
 rebuild from the prepared corpus into a new directory and preserve the old files.
 
-## Working provisional API
+## Working API
 
 ```python
-from hadith_detector import HadithDetector
+from hadith_detector import Detection, DetectorConfig, HadithDetector
 
-detector = HadithDetector.from_directory("data/runtime-index")
+detector = HadithDetector("data/runtime-index", config=DetectorConfig())
 text = "إنما الأعمال بالنيات"
 matches = detector.detect(text, min_match_words=3)
 # Optional budgets, independently applied to each supporting occurrence:
@@ -54,6 +55,7 @@ for match in matches:
         for occurrence in reference.occurrences:
             assert record.text[occurrence.start : occurrence.end] == occurrence.text
     serializable = match.to_dict()
+    assert Detection.from_dict(serializable) == match
 ```
 
 The default minimum is five normalized input words; any positive integer is allowed.
@@ -67,19 +69,24 @@ never download, rebuild or write resources. See the [API and resource guide](doc
 and [Phase 3B validation report](docs/phase3b-validation.md).
 The approved MARISA evaluation saved about 78 MiB of steady memory at the cost of
 about 1.34 seconds additional validated initialization. Reuse long-lived instances.
-There is no concurrency guarantee for a shared instance; serialize its calls or
-use independent instances per worker. See [production validation](docs/marisa-production.md).
-
-## Planned API — not implemented
+Calls on the same instance execute sequentially under a reentrant lock. Independent
+instances retain independent caches. See [production validation](docs/marisa-production.md)
+and the [public API guide](docs/public-api.md) for configuration, serialization and lifetime.
+See [Phase 5A verification](docs/phase5a-validation.md) for review evidence.
 
 ```python
-detect(text, min_match_words=5, max_errors=1, max_missing_words=1)
-annotate(text, format="html")
-get_hadith(hadith_key)
+from hadith_detector import clear_cache, detect, get_hadith
+
+matches = detect(text, index_dir="data/runtime-index", min_match_words=3)
+record = get_hadith("bukhari:1", index_dir="data/runtime-index")
+clear_cache()
 ```
 
-These top-level functions are planned for later milestones; the instance supports fuzzy budgets now.
-The provisional class API can change before its finalization in Phase 5.
+Convenience calls reuse a single cached detector. Omitted/`None` settings inherit
+configuration; explicit zero overrides its error or omission budget. `index_dir`
+is required for now. Run the [three repository examples](examples/public_api.py) with
+`uv run python examples/public_api.py data/runtime-index-v2-a`. `annotate(text, format="html", ...)` is a **planned API**,
+not implemented or exported.
 
 ## Limitations and data rights
 

@@ -51,7 +51,16 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "hadith_detector/__init__.py" in names
         assert "hadith_detector/py.typed" in names
         assert "hadith_detector/_text.py" in names
-        for module in ("detector", "models", "_resources", "_fuzzy", "_marisa"):
+        for module in (
+            "detector",
+            "models",
+            "config",
+            "_convenience",
+            "_serialization",
+            "_resources",
+            "_fuzzy",
+            "_marisa",
+        ):
             assert f"hadith_detector/{module}.py" in names
         assert metadata["Name"] == "hadith-detector"
         assert metadata["Requires-Python"] == ">=3.11"
@@ -136,7 +145,7 @@ from importlib.resources import files
 assert hadith_detector.__version__ == version('hadith-detector')
 assert files('hadith_detector').joinpath('py.typed').is_file()
 assert callable(hadith_detector.HadithDetector.from_directory)
-assert not hasattr(hadith_detector, 'detect')
+assert callable(hadith_detector.detect)
 assert find_spec('rapidfuzz') is not None
 assert find_spec('marisa_trie') is not None
 assert 'rapidfuzz' not in __import__('sys').modules
@@ -147,6 +156,12 @@ result = detector.detect('عن نافع عن ابن عمر', max_errors=1)
 assert len(result) == 1 and len(result[0].references) == 2
 assert [ref.occurrences[0].errors for ref in result[0].references] == [0, 1]
 assert len(result[0].references[0].occurrences[0].alignment) == 5
+assert detector.index_dir == __import__('pathlib').Path(__import__('sys').argv[1]).resolve()
+assert hadith_detector.Detection.from_dict(json.loads(json.dumps(result[0].to_dict()))) == result[0]
+assert hadith_detector.detect(result[0].text, index_dir=detector.index_dir,
+                             config=hadith_detector.DetectorConfig(max_errors=1)) == result
+assert hadith_detector.get_hadith('fixture:1', index_dir=detector.index_dir).sunnah_url is None
+hadith_detector.clear_cache()
 print(json.dumps({'file': hadith_detector.__file__}))
 """
     result = subprocess.run(

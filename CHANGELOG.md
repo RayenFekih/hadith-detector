@@ -7,6 +7,12 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Frozen `DetectorConfig`, directory constructor, read-only resolved `index_dir`,
+  and convenience `detect()`/`get_hadith()` with a synchronized single-entry cache.
+- Validated result `from_dict()` methods and isolated JSON metadata round trips.
+- Per-instance reentrant locking: concurrent detection and lookup calls execute sequentially.
+- Public API, cache/concurrency and deserialization regression checks (Phase 5A).
+
 - Prebuilt MARISA v2 vocabulary/trigram lookups with explicit preserved IDs,
   complete resource validation and deterministic offline construction.
 - Native-resource corruption tests, supported-version and offline installation checks.
@@ -41,10 +47,13 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Changed
 
+- Detection settings now inherit defaults when omitted or `None`; explicit zero overrides.
+- The provisional constructor now takes a directory; `from_directory()` remains supported.
+
 - Require `marisa-trie==1.4.1` alongside RapidFuzz. Index format v2 replaces v1;
   rebuild into a new directory from the prepared corpus and preserve v1 for rollback.
 - Accept increased one-time validated initialization for substantially lower memory
-  in long-lived instances. Shared-instance concurrency remains unspecified.
+  in long-lived instances. Phase 5A now serializes shared-instance calls.
 
 - RapidFuzz is the sole required production distance engine (`>=3.14.6,<4`);
   Python distance implementations remain repository-only testing/benchmark tools.

@@ -19,7 +19,7 @@ reordered, split or joined. Only internal source words may be omitted; neither l
 nor trailing omissions are allowed. Both budgets apply independently to every source
 occurrence. Omitted words do not count toward the minimum.
 
-Normalization and compact index format remain version 1. Barriers cannot be crossed,
+Normalization remains version 1; the compact MARISA index is version 2. Barriers cannot be crossed,
 even using omissions. Input/source endpoints must consume complete symbol expansions.
 Internal expanded source words may be omitted; token indices distinguish shared spans.
 Character offsets always slice the original input and source strings, including marks.
@@ -61,7 +61,7 @@ once. A distance LRU holds at most 50,000 word-pair/cutoff entries; over-cutoff 
 never treated as exact distances. Neighbor caching is limited to 4,096 keys and 100,000
 total word IDs. Oversized entries are computed without caching; eviction causes
 recomputation without losing candidates. Instances have independent caches. Concurrent
-calls on one instance are not a documented thread-safety contract.
+calls on one instance execute sequentially under the Phase 5A instance lock.
 
 Run synthetic checks with `uv run --group benchmark pytest tests/test_fuzzy_detector.py`.
 Reproduce full-corpus validation offline using the saved Phase 4A evidence:
@@ -72,4 +72,7 @@ uv run --group benchmark python -m tools.validate_fuzzy_runtime --index-dir data
 
 Choose a new report filename each run. Keep generated data ignored. Textual support is
 not independent authentication; common chains and embedded Quranic passages can match.
-Annotation, top-level convenience functions and corpus bundling remain later milestones.
+Annotation and corpus bundling remain later milestones; convenience functions are implemented.
+
+Phase 5A adds frozen defaults and sequential shared-instance calls. Omitted/None
+settings inherit configuration; explicit zero overrides it. See [public API](public-api.md).

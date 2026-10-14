@@ -18,7 +18,7 @@ def main():
     before = set(Path.cwd().iterdir())
     socket.socket = lambda *a, **k: (_ for _ in ()).throw(AssertionError("network access"))
     import hadith_detector
-    from hadith_detector import HadithDetector, _marisa
+    from hadith_detector import Detection, DetectorConfig, HadithDetector, _marisa
     from hadith_detector._resources import INDEX_VERSION
 
     assert INDEX_VERSION == 2
@@ -36,6 +36,8 @@ def main():
     _marisa.marisa_trie.RecordTrie = reader
     detector = HadithDetector.from_directory(args.index_dir)
     assert calls == ["<I", "<I"]
+    assert detector.index_dir == args.index_dir.resolve()
+    assert detector.config == DetectorConfig()
     for source in detector._resources.records[:3]:
         record = detector.get_hadith(source["hadith_key"])
         assert record.to_dict() == source
@@ -47,11 +49,27 @@ def main():
                 for ref in result.references
             )
             for result in results:
+                assert Detection.from_dict(json.loads(json.dumps(result.to_dict()))) == result
                 assert source["text"][result.start : result.end] == result.text
                 for ref in result.references:
                     for occurrence in ref.occurrences:
                         assert ref.record.text[occurrence.start : occurrence.end] == occurrence.text
     assert len(calls) == 2
+    source = detector._resources.records[0]
+    assert (
+        hadith_detector.get_hadith(source["hadith_key"], index_dir=args.index_dir).to_dict()
+        == source
+    )
+    cached = hadith_detector.detect(
+        source["text"],
+        index_dir=args.index_dir,
+        config=DetectorConfig(max_errors=1, max_missing_words=1),
+        max_errors=0,
+        max_missing_words=0,
+    )
+    assert cached == detector.detect(source["text"])
+    assert len(calls) == 4
+    hadith_detector.clear_cache()
     try:
         HadithDetector.from_directory(args.legacy_dir)
     except ValueError as exc:

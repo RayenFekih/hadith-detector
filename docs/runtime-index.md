@@ -31,13 +31,14 @@ if results:
     payload = first.to_dict()
 ```
 
-`detect(text, *, min_match_words=5, max_errors=0, max_missing_words=0)` returns
+`detector.detect(text, *, min_match_words=None, max_errors=None, max_missing_words=None)` returns
 `list[Detection]`. Empty input returns
 an empty list. Minimum values must be positive integers, excluding booleans;
 invalid values raise `ValueError`. Non-string text or source keys raise `TypeError`.
 Unknown keys raise `KeyError`. Missing resource files raise `FileNotFoundError`;
 incompatible versions, invalid checksums or structural corruption raise `ValueError`.
-These contracts and models are provisional until Phase 5.
+Phase 5A finalizes these contracts; see [configuration and convenience calls](public-api.md).
+Omitted/None settings inherit instance defaults (5, 0, 0); explicit zero overrides.
 
 ## Results and source preservation
 
@@ -50,7 +51,7 @@ These contracts and models are provisional until Phase 5.
 | `OmittedSourceToken` | `source_token`, `start`, `end`, `text`, `term` |
 | `HadithRecord` | Original identity, numbering, language, collection, text, grades and nullable URL fields; `additional_metadata` for unknown source fields |
 
-All models provide `to_dict()` for JSON-compatible values. `HadithRecord.to_dict()`
+All models provide `to_dict()` and validated `from_dict()` for JSON-compatible values. `HadithRecord.to_dict()`
 reconstructs the complete original flat record, including additional fields and nested
 metadata. Other serializers use nested dictionaries and lists. Model attributes are
 frozen; nested metadata is an independent mutable snapshot. Mutating returned metadata
@@ -133,10 +134,10 @@ The accepted trial saved approximately 78 MiB steady RSS and increased validated
 from 2.60 to 3.93 seconds, plus approximately 31 ms on the first fuzzy call. Typical warm
 exact/fuzzy latency was comparable. These are single-machine measurements, not guarantees;
 see [the historical trial](marisa-trial.md) and [production checks](marisa-production.md).
-Long-lived API, MCP and notebook instances amortize initialization. There is no concurrency
-guarantee for calls sharing one detector, including its lazy mutable fuzzy caches. Serialize
-access at the application boundary or use independent instances/workers. No locking or
-new threading contract is introduced by this integration.
+Long-lived API, MCP and notebook instances amortize initialization. Phase 5A protects
+public operations with a reentrant instance lock: calls sharing a detector execute
+sequentially, including its lazy mutable fuzzy caches. Independent instances retain
+independent caches. See [the public API contracts](public-api.md).
 
 ## Reproduce full-corpus validation
 

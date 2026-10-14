@@ -177,7 +177,7 @@ def test_loader_and_calls_do_not_tokenize_source_or_write(index, monkeypatch):
     assert {p.name: checksum(p) for p in output.iterdir()} == before
 
 
-@pytest.mark.parametrize("minimum", [0, -1, True, 1.5, "5", None])
+@pytest.mark.parametrize("minimum", [0, -1, True, 1.5, "5"])
 def test_invalid_minimum(index, minimum):
     detector = HadithDetector.from_directory(index[0])
     with pytest.raises(ValueError, match="positive integer"):

@@ -1,4 +1,4 @@
-"""Provisional typed matching results, with independent metadata snapshots."""
+"""Typed matching results, with independent metadata snapshots."""
 
 from __future__ import annotations
 
@@ -34,6 +34,13 @@ class HadithRecord:
             additional_metadata={k: deepcopy(v) for k, v in source.items() if k not in names},
         )
 
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> HadithRecord:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import record
+
+        return record(value)
+
     def to_dict(self) -> dict[str, Any]:
         """Reproduce original source fields and values, without sharing mutable data."""
         result = asdict(self)
@@ -52,6 +59,13 @@ class WordAlignment:
     source_end: int
     errors: int
 
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> WordAlignment:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import word
+
+        return word(value)
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
@@ -63,6 +77,13 @@ class OmittedSourceToken:
     end: int
     text: str
     term: str
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> OmittedSourceToken:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import omitted
+
+        return omitted(value)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -78,6 +99,13 @@ class SourceOccurrence:
     alignment: tuple[WordAlignment, ...] = ()
     omitted_source_tokens: tuple[OmittedSourceToken, ...] = ()
 
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> SourceOccurrence:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import occurrence
+
+        return occurrence(value)
+
     def to_dict(self) -> dict[str, Any]:
         result = asdict(self)
         result["alignment"] = [asdict(word) for word in self.alignment]
@@ -89,6 +117,13 @@ class SourceOccurrence:
 class HadithReference:
     record: HadithRecord
     occurrences: tuple[SourceOccurrence, ...]
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> HadithReference:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import reference
+
+        return reference(value)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -106,6 +141,13 @@ class Detection:
     references: tuple[HadithReference, ...]
     errors: int = 0
     missing_words: int = 0
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> Detection:
+        """Restore a structurally validated, isolated snapshot without matching."""
+        from ._serialization import detection
+
+        return detection(value)
 
     def to_dict(self) -> dict[str, Any]:
         return {

@@ -14,6 +14,10 @@ def test_version_matches_distribution() -> None:
     assert set(hadith_detector.__all__) == {
         "__version__",
         "HadithDetector",
+        "DetectorConfig",
+        "detect",
+        "get_hadith",
+        "clear_cache",
         "HadithRecord",
         "SourceOccurrence",
         "HadithReference",
@@ -32,7 +36,7 @@ socket.socket = forbid_network
 import hadith_detector
 from importlib.metadata import version
 assert hadith_detector.__version__ == version('hadith-detector')
-assert not hasattr(hadith_detector, 'detect')
+assert callable(hadith_detector.detect)
 assert not hasattr(hadith_detector, 'annotate')
 """
     subprocess.run(

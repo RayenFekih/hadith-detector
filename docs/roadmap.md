@@ -109,7 +109,7 @@ HadithDetector(...)
 
 Phase 3B implements provisional typed dataclasses with serialization, original input
 substrings/offsets and all supporting exact references. Phase 4B adds fuzzy costs,
-word alignments and omitted-token traces. The final surface will add annotation. Each reference
+word alignments and omitted-token traces. Phase 5A finalizes these models and configuration; Phase 5B will add annotation. Each reference
 exposes identifiers, collection/numbering, complete original narration, nullable
 URL, matched source substring/offsets, and fuzzy details.
 
@@ -127,3 +127,25 @@ small fixtures and reports; large downloads/derived artifacts remain outside Git
 Approved runtime resources later ship in Python distributions, with reproducible
 large artifacts in release assets. No LFS or DVC without a separate decision.
 See [data policy](../data/README.md) and [version/release policy](../CONTRIBUTING.md).
+
+## Phase 5 review boundaries
+
+Phase 5A finalizes the [public API](public-api.md): frozen defaults, explicit local
+resources, a single-entry convenience cache, per-instance sequential locking,
+read-only resolved directory visibility and structural dictionary restoration.
+The future bundled resource is one combined Bukhari/Muslim corpus. No global
+corpus configuration, asynchronous API or parallel processing is introduced.
+
+Matching, MARISA v2, RapidFuzz, normalization v1 and source data remain unchanged.
+Phase 5A is accepted following regression, full-corpus oracle, packaging and
+Python 3.11-3.14 compatibility checks. The [Phase 5A review report](phase5a-validation.md)
+records verification. The [Phase 5B proposal](phase5b-plan.md) covers safe HTML
+annotation and remains subject to plan approval and an implementation instruction.
+Phase 7 will make resource arguments optional with bundled defaults.
+
+Proposed Phase 5A commits, only when requested:
+
+1. `feat: finalize detector configuration and convenience API`
+2. `feat: add validated result deserialization`
+3. `test: verify public API caching and concurrency contracts`
+4. `docs: document finalized public API`

@@ -95,7 +95,7 @@ def test_randomized_two_pass_canonical_paths(tmp_path):
 
 
 @pytest.mark.parametrize("name", ["max_errors", "max_missing_words"])
-@pytest.mark.parametrize("value", [True, False, -1, 1.5, None, "1"])
+@pytest.mark.parametrize("value", [True, False, -1, 1.5, "1"])
 def test_invalid_budgets(fixture, name, value):
     detector, _ = fixture
     with pytest.raises(ValueError, match=name):

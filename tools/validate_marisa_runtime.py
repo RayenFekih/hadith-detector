@@ -9,7 +9,7 @@ import time
 from importlib.metadata import version
 from pathlib import Path
 
-from hadith_detector import HadithDetector
+from hadith_detector import Detection, HadithDetector, HadithRecord
 from hadith_detector._resources import canonical, checksum
 from tools.fuzzy_benchmark.common import exact_projection
 from tools.validate_fuzzy_runtime import hashed, project
@@ -33,6 +33,8 @@ def validate(index, evidence, representative, output):
     detector = HadithDetector.from_directory(index)
     loading = time.perf_counter() - started
     for record in detector._resources.records:
+        if HadithRecord.from_dict(record).to_dict() != record:
+            raise AssertionError("Record deserialization mismatch")
         if detector.get_hadith(record["hadith_key"]).to_dict() != record:
             raise AssertionError("Complete original metadata round-trip mismatch")
     process = psutil.Process()
@@ -54,6 +56,8 @@ def validate(index, evidence, representative, output):
         if hashed(projected) != expected:
             raise AssertionError(f"Oracle mismatch: {q['id']}")
         for result in results:
+            if Detection.from_dict(result.to_dict()) != result:
+                raise AssertionError("Result deserialization mismatch")
             assert q["text"][result.start : result.end] == result.text
             for reference in result.references:
                 original = detector.get_hadith(reference.record.hadith_key).text

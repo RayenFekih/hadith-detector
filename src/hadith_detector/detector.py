@@ -5,35 +5,73 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
+from threading import RLock
 
 from ._fuzzy import FuzzyMatcher
 from ._resources import MAX_U32, Resources, Sequence, query_sequence
 from ._text import tokenize
+from .config import DetectorConfig
 from .models import Detection, HadithRecord, HadithReference, SourceOccurrence, WordAlignment
 
 Run = tuple[int, int, int, int, int]
 
 
 class HadithDetector:
-    """Provisional exact/fuzzy API; load explicit local resources once."""
+    """Offline exact/fuzzy API; calls on one instance execute sequentially."""
 
-    __slots__ = ("_resources", "_fuzzy")
+    __slots__ = ("_resources", "_fuzzy", "_config", "_index_dir", "_lock")
 
-    def __init__(self, resources: Resources) -> None:
-        self._resources = resources
+    def __init__(self, index_dir: str | Path, config: DetectorConfig | None = None) -> None:
+        if config is not None and not isinstance(config, DetectorConfig):
+            raise TypeError("config must be a DetectorConfig or None")
+        self._config = config if config is not None else DetectorConfig()
+        self._index_dir = Path(index_dir).resolve()
+        self._lock = RLock()
+        self._resources = Resources.load(self._index_dir)
         self._fuzzy: FuzzyMatcher | None = None
 
+    @property
+    def config(self) -> DetectorConfig:
+        """Immutable instance defaults."""
+        return self._config
+
+    @property
+    def index_dir(self) -> Path:
+        """Resolved resource directory; resources must remain unchanged."""
+        return self._index_dir
+
     @classmethod
-    def from_directory(cls, index_dir: str | Path) -> HadithDetector:
-        """Validate/load local resources without downloading, rebuilding or retokenizing."""
-        return cls(Resources.load(Path(index_dir)))
+    def from_directory(
+        cls, index_dir: str | Path, config: DetectorConfig | None = None
+    ) -> HadithDetector:
+        """Validate/load local resources without downloading or rebuilding."""
+        return cls(index_dir, config)
 
     def get_hadith(self, hadith_key: str) -> HadithRecord:
         """Return an independent snapshot; unknown identities raise KeyError."""
-        if not isinstance(hadith_key, str):
-            raise TypeError("hadith_key must be a string")
-        rid = self._resources.keys[hadith_key]
-        return HadithRecord._from_source(self._resources.records[rid])
+        with self._lock:
+            if not isinstance(hadith_key, str):
+                raise TypeError("hadith_key must be a string")
+            rid = self._resources.keys[hadith_key]
+            return HadithRecord._from_source(self._resources.records[rid])
+
+    def detect(
+        self,
+        text: str,
+        *,
+        min_match_words: int | None = None,
+        max_errors: int | None = None,
+        max_missing_words: int | None = None,
+    ) -> list[Detection]:
+        """Detect passages sequentially on this instance; None inherits defaults."""
+        with self._lock:
+            config = self.config._override(min_match_words, max_errors, max_missing_words)
+            return self._detect(
+                text,
+                min_match_words=config.min_match_words,
+                max_errors=config.max_errors,
+                max_missing_words=config.max_missing_words,
+            )
 
     def _seeds(self, query: Sequence, minimum: int) -> Iterator[tuple[int, int, int]]:
         data = self._resources
@@ -69,7 +107,7 @@ class HadithDetector:
                     packed = postings[position]
                     yield start, packed >> 32, (packed & MAX_U32) - (anchor - start)
 
-    def detect(
+    def _detect(
         self,
         text: str,
         *,
