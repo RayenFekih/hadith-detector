@@ -79,10 +79,10 @@ Valid non-overlapping tails of suppressed alignments remain eligible. Results re
 in input order. Every reference supports the complete selected passage, including
 references recovered from longer suppressed alignments; all source occurrences survive.
 
-## Resource format version 1
+## Resource format version 2
 
 The format is explicit little-endian binary tables plus canonical UTF-8 JSON, with
-independent index, manifest, record, token and normalization versions, currently all 1.
+independent versions: index 2; manifest, record, token and normalization 1.
 Record IDs follow prepared collection/sequence order; vocabulary IDs follow first
 occurrence order. No timestamp, absolute path or library development version enters
 deterministic resources.
@@ -90,17 +90,17 @@ deterministic resources.
 | File | Payload |
 | --- | --- |
 | `records.jsonl` | Unchanged complete Phase 2 records |
-| `vocabulary.json` | Ordered normalized terms |
+| `vocabulary.marisa` | Normalized terms mapped to explicit uint32 vocabulary IDs |
 | `tokens.bin` | Four uint32 values per token: term ID, start, end, segment |
 | `record-offsets.bin` | uint64 global token boundaries, including terminal boundary |
 | `unigram-offsets.bin` | Vocabulary-aligned `(uint64 offset, uint32 count)` blocks |
 | `unigram-postings.bin` | uint64 postings |
-| `trigram-keys.bin` | Lexicographically sorted triples of uint32 term IDs |
+| `trigrams.marisa` | Fixed 24-character hexadecimal triples mapped to explicit uint32 block IDs |
 | `trigram-offsets.bin` | Key-aligned `(uint64 offset, uint32 count)` blocks |
 | `trigram-postings.bin` | uint64 postings |
 | `manifest.json` | Provenance, versions, counts, code/environment fingerprint and SHA-256 checksums |
 
-Every binary file starts with the 32-byte header `<8sIIIIQ`: magic `HDIDX001`,
+Each `.bin` file starts with the 32-byte header `<8sIIIIQ`: magic `HDIDX002`,
 index version, file-kind ID, row width, flags (1 = little endian), and row count.
 Postings encode `(record_id << 32) | local_token_position`. Counts and IDs are bounded
 by uint32; headers and block offsets are uint64. The loader checks exact sizes before
@@ -108,11 +108,35 @@ allocation, source identities and spans, key order, posting bounds and ordering,
 segment validity and complete unigram/trigram coverage. Checksums detect accidental
 changes; they do not authenticate an untrusted publisher.
 
-Loading uses compact arrays and token memoryviews plus a trigram lookup dictionary;
+The native files use MARISA `RecordTrie("<I")`; internal MARISA IDs are never application
+IDs. Vocabulary IDs retain first-occurrence order and trigram block IDs retain sorted
+triple order. Remaining posting/token layouts and file-kind IDs retain their meanings.
+The builder records MARISA 1.4.1, explicit construction settings and the dependency lock.
+Loading checks complete unique native ID coverage, duplicate keys and encoding, then
+validates every posting using a temporary compact key array indexed by stored block ID.
+The temporary array is released after validation. Integrity checks are not skipped.
+
+Loading uses compact arrays, token memoryviews and heap-loaded prebuilt MARISA lookups;
 it reads resources eagerly and performs structural verification without retokenizing
 all narrations. Each detector loads once and reuses its resources across calls.
 Different detector instances load independent resources. Missing or incompatible
 resources never trigger automatic conversion.
+
+### Migration and instance lifetime
+
+Only v2 is supported. Rebuild v1 offline from the existing prepared corpus using
+`python -m tools.build_index --corpus-dir data/prepared-corpus --output-dir data/runtime-index-v2`.
+Choose a new directory; retain v1 files for rollback with the previous library version.
+Do not convert directories in place. Detection never constructs corpus-dependent tries.
+
+The accepted trial saved approximately 78 MiB steady RSS and increased validated loading
+from 2.60 to 3.93 seconds, plus approximately 31 ms on the first fuzzy call. Typical warm
+exact/fuzzy latency was comparable. These are single-machine measurements, not guarantees;
+see [the historical trial](marisa-trial.md) and [production checks](marisa-production.md).
+Long-lived API, MCP and notebook instances amortize initialization. There is no concurrency
+guarantee for calls sharing one detector, including its lazy mutable fuzzy caches. Serialize
+access at the application boundary or use independent instances/workers. No locking or
+new threading contract is introduced by this integration.
 
 ## Reproduce full-corpus validation
 
@@ -120,7 +144,7 @@ Build twice into different directories, then compare every artifact and the save
 Phase 3A oracle results in separate worker processes:
 
 ```sh
-uv run --group benchmark python -m tools.validate_runtime_index run --index-dir data/runtime-index-a --index-dir data/runtime-index-b --benchmark-dir data/phase3-benchmark --output-dir data/runtime-validation
+uv run --group benchmark python -m tools.validate_runtime_index run --index-dir data/runtime-index-v2-a --index-dir data/runtime-index-v2-b --benchmark-dir data/phase3-benchmark --output-dir data/runtime-validation-v2
 ```
 
 Ordinary CI uses synthetic resources and never downloads the corpus. Full-corpus

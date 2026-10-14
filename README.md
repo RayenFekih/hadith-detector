@@ -13,6 +13,7 @@ convenience functions remain planned.
 
 Python 3.11–3.14 are supported; development and resource construction use Python 3.14.
 RapidFuzz (`>=3.14.6,<4`) is the required production character-distance dependency.
+MARISA (`marisa-trie==1.4.1`) supplies the prebuilt vocabulary and trigram lookups.
 Install dependencies before offline use. Detection never needs network access.
 
 Repository-only Phase 4A tools compare complete fuzzy retrieval strategies and
@@ -33,6 +34,8 @@ uv run python -m tools.build_index --corpus-dir data/prepared-corpus --output-di
 
 Choose a new output directory for each build. Downloads and generated resources
 stay outside Git. Research notebooks use separate exploratory environments.
+Current builds produce index format v2. Existing v1 directories are rejected;
+rebuild from the prepared corpus into a new directory and preserve the old files.
 
 ## Working provisional API
 
@@ -62,6 +65,10 @@ ends. All source identities and all supporting occurrences are returned.
 Loading validates resources once; subsequent calls reuse them. Loading and detection
 never download, rebuild or write resources. See the [API and resource guide](docs/runtime-index.md)
 and [Phase 3B validation report](docs/phase3b-validation.md).
+The approved MARISA evaluation saved about 78 MiB of steady memory at the cost of
+about 1.34 seconds additional validated initialization. Reuse long-lived instances.
+There is no concurrency guarantee for a shared instance; serialize its calls or
+use independent instances per worker. See [production validation](docs/marisa-production.md).
 
 ## Planned API — not implemented
 

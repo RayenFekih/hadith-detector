@@ -67,7 +67,7 @@ Run synthetic checks with `uv run --group benchmark pytest tests/test_fuzzy_dete
 Reproduce full-corpus validation offline using the saved Phase 4A evidence:
 
 ```sh
-uv run --group benchmark python -m tools.validate_fuzzy_runtime --index-dir data/runtime-index-a --benchmark-dir data/phase4-measured --output data/phase4b-validation/report.json
+uv run --group benchmark python -m tools.validate_fuzzy_runtime --index-dir data/runtime-index-v2-a --benchmark-dir data/phase4-final --output data/phase4b-validation/report-v2.json
 ```
 
 Choose a new report filename each run. Keep generated data ignored. Textual support is

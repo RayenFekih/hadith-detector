@@ -23,6 +23,21 @@ traces with complete supporting occurrences. Resource and normalization versions
 See [runtime behavior](fuzzy-runtime.md) and [Phase 4B validation](phase4b-validation.md).
 Phase 5 remains pending review and approval.
 
+Before Phase 5, the maintainer requested a review of maintained libraries for the
+existing phases. See [library reuse review](library-review.md) for candidates and
+compatibility evidence. The requested focused evaluation is recorded in
+[library benchmark results](library-benchmark-results.md), with commands in
+[the protocol](library-benchmark.md). Production adoption remains pending review;
+the experiments do not change runtime dependencies or resource formats.
+
+The prebuilt MARISA v2 trial is implemented separately in repository tooling.
+See [the historical acceptance report](marisa-trial.md): complete oracle agreement and a
+78 MiB steady-memory reduction, with approximately 52% slower validated loading
+and 19% slower first fuzzy calls. The maintainer accepted these one-time costs for
+long-lived instances and approved production v2-only integration. Production now
+requires MARISA 1.4.1 alongside RapidFuzz; integrity checks remain complete.
+See [production validation](marisa-production.md). Phase 5 remains pending.
+
 ## Architectural commitments
 
 - Search complete narrations with one engine. No Matn/Isnad extraction or mode parameter.

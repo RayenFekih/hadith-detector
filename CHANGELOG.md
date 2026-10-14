@@ -7,6 +7,10 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Prebuilt MARISA v2 vocabulary/trigram lookups with explicit preserved IDs,
+  complete resource validation and deterministic offline construction.
+- Native-resource corruption tests, supported-version and offline installation checks.
+
 - Production fuzzy detection with simultaneous character-edit and internal source-word
   omission budgets, complete anchor retrieval and two-pass occurrence recovery.
 - Per-occurrence costs, canonical word alignments and omitted-token models; JSON result
@@ -36,6 +40,11 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Runtime/oracle comparison, corruption tests, metadata isolation and clean-install checks.
 
 ### Changed
+
+- Require `marisa-trie==1.4.1` alongside RapidFuzz. Index format v2 replaces v1;
+  rebuild into a new directory from the prepared corpus and preserve v1 for rollback.
+- Accept increased one-time validated initialization for substantially lower memory
+  in long-lived instances. Shared-instance concurrency remains unspecified.
 
 - RapidFuzz is the sole required production distance engine (`>=3.14.6,<4`);
   Python distance implementations remain repository-only testing/benchmark tools.
