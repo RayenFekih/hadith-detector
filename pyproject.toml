@@ -31,7 +31,7 @@ Issues = "https://github.com/RayenFekih/hadith-detector/issues"
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.16.6", "mypy>=1.15", "build>=1.2", "twine>=6"]
 data = ["huggingface-hub>=1", "pyarrow>=20"]
-benchmark = ["psutil>=7"]
+benchmark = ["psutil>=7", "rapidfuzz==3.14.6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
