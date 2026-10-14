@@ -56,7 +56,10 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert metadata["Name"] == "hadith-detector"
         assert metadata["Requires-Python"] == ">=3.11"
         assert metadata["License-Expression"] == "MIT"
+        # Phase 4A approval keeps runtime requirements unchanged; this is not a
+        # permanent ban on dependencies in later approved milestones.
         assert metadata.get_all("Requires-Dist", []) == []
+        assert metadata.get_all("Provides-Extra", []) == []
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
@@ -73,6 +76,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "data/README.md" in relative
         assert "tools/prepare_data.py" in relative
         assert "tools/build_index.py" in relative
+        assert "tools/fuzzy_benchmark/__main__.py" in relative
         assert "tools/source-lock.json" in relative
         assert "uv.lock" in relative
         forbidden = {
@@ -121,12 +125,14 @@ def forbid_network(*args, **kwargs):
     raise AssertionError('Import attempted network access')
 socket.socket = forbid_network
 import hadith_detector
+from importlib.util import find_spec
 from importlib.metadata import version
 from importlib.resources import files
 assert hadith_detector.__version__ == version('hadith-detector')
 assert files('hadith_detector').joinpath('py.typed').is_file()
 assert callable(hadith_detector.HadithDetector.from_directory)
 assert not hasattr(hadith_detector, 'detect')
+assert find_spec('rapidfuzz') is None
 print(json.dumps({'file': hadith_detector.__file__}))
 """
     result = subprocess.run(
