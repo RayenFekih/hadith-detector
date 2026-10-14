@@ -1,9 +1,16 @@
-"""Offline exact Arabic Hadith detection using explicitly supplied local resources."""
+"""Offline Arabic Hadith detection using explicitly supplied local resources."""
 
 from importlib.metadata import version
 
 from .detector import HadithDetector
-from .models import Detection, HadithRecord, HadithReference, SourceOccurrence
+from .models import (
+    Detection,
+    HadithRecord,
+    HadithReference,
+    OmittedSourceToken,
+    SourceOccurrence,
+    WordAlignment,
+)
 
 __version__ = version("hadith-detector")
 
@@ -14,4 +21,6 @@ __all__ = [
     "SourceOccurrence",
     "HadithReference",
     "Detection",
+    "WordAlignment",
+    "OmittedSourceToken",
 ]

@@ -1,8 +1,8 @@
-# Exact detector and compact resources
+# Exact and fuzzy detector with compact resources
 
 Phase 3B implements the approved three-word index with complete unigram fallback.
 The repository builder consumes verified Phase 2 artifacts; the installed library
-needs only standard-library code and an explicitly supplied resource directory.
+uses RapidFuzz for fuzzy character distances and an explicitly supplied resource directory.
 Nothing is bundled, downloaded or rebuilt by the runtime.
 
 ## Build and use
@@ -31,7 +31,8 @@ if results:
     payload = first.to_dict()
 ```
 
-`detect(text, *, min_match_words=5)` returns `list[Detection]`. Empty input returns
+`detect(text, *, min_match_words=5, max_errors=0, max_missing_words=0)` returns
+`list[Detection]`. Empty input returns
 an empty list. Minimum values must be positive integers, excluding booleans;
 invalid values raise `ValueError`. Non-string text or source keys raise `TypeError`.
 Unknown keys raise `KeyError`. Missing resource files raise `FileNotFoundError`;
@@ -42,9 +43,11 @@ These contracts and models are provisional until Phase 5.
 
 | Model | Fields |
 | --- | --- |
-| `Detection` | `start`, `end`, `text`, `matched_words`, `references` |
+| `Detection` | `start`, `end`, `text`, `matched_words`, `references`, `errors`, `missing_words` |
 | `HadithReference` | `record`, `occurrences` |
-| `SourceOccurrence` | `start`, `end`, `text` |
+| `SourceOccurrence` | `start`, `end`, `text`, `errors`, `missing_words`, `alignment`, `omitted_source_tokens` |
+| `WordAlignment` | `input_token`, `source_token`, `input_start`, `input_end`, `source_start`, `source_end`, `errors` |
+| `OmittedSourceToken` | `source_token`, `start`, `end`, `text`, `term` |
 | `HadithRecord` | Original identity, numbering, language, collection, text, grades and nullable URL fields; `additional_metadata` for unknown source fields |
 
 All models provide `to_dict()` for JSON-compatible values. `HadithRecord.to_dict()`
@@ -122,5 +125,6 @@ uv run --group benchmark python -m tools.validate_runtime_index run --index-dir 
 
 Ordinary CI uses synthetic resources and never downloads the corpus. Full-corpus
 evidence and measured limitations are recorded in [the validation report](phase3b-validation.md).
-Fuzzy matching, omitted source words, HTML annotation and packaged resources remain
-later milestones.
+Phase 4B adds fuzzy matching and omitted source words; see [fuzzy behavior](fuzzy-runtime.md)
+and [its validation report](phase4b-validation.md). HTML annotation and packaged resources
+remain later milestones.

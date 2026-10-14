@@ -42,13 +42,16 @@ and run across the supported Python matrix. Full-corpus index construction uses
 Python 3.14 and the verified prepared artifacts; see [runtime resources](docs/runtime-index.md).
 Fresh-process validation measurements use the separate `benchmark` group.
 
-Phase 4A adds RapidFuzz 3.14.6 only to that benchmark group. Run its synthetic
+Phase 4B requires RapidFuzz at runtime; the benchmark group pins 3.14.6 for reproduction.
+Run the repository's synthetic
 oracle/retrieval/backend checks with `uv run --frozen --group benchmark pytest tests/test_fuzzy_benchmark.py`.
 The normal environment skips RapidFuzz parity and subprocess tests if their optional
 tools are absent. See [fuzzy experiments](docs/fuzzy-benchmark.md) for full-corpus commands.
 Dependencies are assessed on their merits; offline operation is required, while
-zero runtime dependencies is not a permanent project rule. Changing installed
-requirements or beginning Phase 4B requires the maintainer's approval.
+zero runtime dependencies is not a permanent project rule. The maintainer approved
+RapidFuzz as the sole production distance engine and authorized Phase 4B. Python
+distance implementations stay in repository tests/benchmarks. Further phase changes
+require review and approval.
 
 Ruff handles linting and formatting (100-character lines, Python 3.11 syntax).
 Mypy checks package code in strict mode. Regenerate `uv.lock` with `uv lock` only

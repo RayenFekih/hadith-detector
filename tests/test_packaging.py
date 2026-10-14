@@ -51,19 +51,18 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "hadith_detector/__init__.py" in names
         assert "hadith_detector/py.typed" in names
         assert "hadith_detector/_text.py" in names
-        for module in ("detector", "models", "_resources"):
+        for module in ("detector", "models", "_resources", "_fuzzy"):
             assert f"hadith_detector/{module}.py" in names
         assert metadata["Name"] == "hadith-detector"
         assert metadata["Requires-Python"] == ">=3.11"
         assert metadata["License-Expression"] == "MIT"
-        # Phase 4A approval keeps runtime requirements unchanged; this is not a
-        # permanent ban on dependencies in later approved milestones.
-        assert metadata.get_all("Requires-Dist", []) == []
+        assert metadata.get_all("Requires-Dist", []) == ["rapidfuzz<4,>=3.14.6"]
         assert metadata.get_all("Provides-Extra", []) == []
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
         assert not any(n.endswith((".jsonl", ".parquet", ".bin")) for n in names)
+        assert not any("fuzzy_benchmark" in n for n in names)
     with zipfile.ZipFile(rebuilt) as archive:
         rebuilt_metadata = BytesParser().parsebytes(
             archive.read(next(n for n in archive.namelist() if n.endswith("/METADATA")))
@@ -112,12 +111,14 @@ def test_clean_wheel_install(
         "install",
         "--python",
         str(python),
-        "--no-deps",
         str(artifacts[artifact_index]),
         cwd=tmp_path,
     )
     working = tmp_path / "empty"
     working.mkdir()
+    from .test_detector import build_fixture
+
+    index, _ = build_fixture(tmp_path, ["عن نافع عن ابن عمر", "عن نافغ عن ابن عمر"])
     script = """
 import json
 import socket
@@ -132,11 +133,19 @@ assert hadith_detector.__version__ == version('hadith-detector')
 assert files('hadith_detector').joinpath('py.typed').is_file()
 assert callable(hadith_detector.HadithDetector.from_directory)
 assert not hasattr(hadith_detector, 'detect')
-assert find_spec('rapidfuzz') is None
+assert find_spec('rapidfuzz') is not None
+assert 'rapidfuzz' not in __import__('sys').modules
+from rapidfuzz.distance import Levenshtein
+assert Levenshtein.distance('سلام', 'سلا', score_cutoff=1) == 1
+detector = hadith_detector.HadithDetector.from_directory(__import__('sys').argv[1])
+result = detector.detect('عن نافع عن ابن عمر', max_errors=1)
+assert len(result) == 1 and len(result[0].references) == 2
+assert [ref.occurrences[0].errors for ref in result[0].references] == [0, 1]
+assert len(result[0].references[0].occurrences[0].alignment) == 5
 print(json.dumps({'file': hadith_detector.__file__}))
 """
     result = subprocess.run(
-        [str(python), "-I", "-B", "-c", script],
+        [str(python), "-I", "-B", "-c", script, str(index)],
         cwd=working,
         check=True,
         capture_output=True,

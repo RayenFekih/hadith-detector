@@ -18,6 +18,8 @@ def test_version_matches_distribution() -> None:
         "SourceOccurrence",
         "HadithReference",
         "Detection",
+        "WordAlignment",
+        "OmittedSourceToken",
     }
 
 

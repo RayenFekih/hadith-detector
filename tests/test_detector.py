@@ -90,7 +90,10 @@ def project(results):
             "references": [
                 {
                     "hadith_key": ref.record.hadith_key,
-                    "occurrences": [o.to_dict() for o in ref.occurrences],
+                    "occurrences": [
+                        {k: o.to_dict()[k] for k in ("start", "end", "text")}
+                        for o in ref.occurrences
+                    ],
                 }
                 for ref in r.references
             ],

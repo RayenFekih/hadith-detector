@@ -3,21 +3,21 @@
 An offline Python library for finding Arabic Hadith quotations and returning
 independently supporting source references.
 
-**Status: provisional exact detector, with Phase 4A fuzzy experiments.** Exact and partial ordered matching,
+**Status: provisional exact and fuzzy detector (Phase 4B).** Exact and partial ordered matching,
 multiple passages, source lookup and typed results work with explicitly supplied
-local resources. No corpus is bundled and no release is published. Fuzzy matching,
-omitted-word tolerance, annotation and top-level convenience functions remain planned.
+local resources. Character-error tolerance and internal source-word omissions work
+together. No corpus is bundled and no release is published. Annotation and top-level
+convenience functions remain planned.
 
 ## Installation and local resources
 
 Python 3.11–3.14 are supported; development and resource construction use Python 3.14.
-The installed library currently has no runtime dependencies. Offline operation is
-required; dependency-free implementation is not a permanent architectural constraint.
-Well-maintained dependencies may be adopted after review of their benefits and costs.
+RapidFuzz (`>=3.14.6,<4`) is the required production character-distance dependency.
+Install dependencies before offline use. Detection never needs network access.
 
 Repository-only Phase 4A tools compare complete fuzzy retrieval strategies and
-pure-Python versus RapidFuzz bounded word distance. These experiments do not add
-fuzzy options to the installed detector. See [fuzzy benchmark usage](docs/fuzzy-benchmark.md)
+pure-Python versus RapidFuzz bounded word distance. Python distance implementations
+remain repository-only correctness tools. See [fuzzy benchmark usage](docs/fuzzy-benchmark.md)
 and [the measurements and Phase 4B recommendation](docs/phase4-fuzzy-benchmark.md).
 
 ```sh
@@ -42,6 +42,8 @@ from hadith_detector import HadithDetector
 detector = HadithDetector.from_directory("data/runtime-index")
 text = "إنما الأعمال بالنيات"
 matches = detector.detect(text, min_match_words=3)
+# Optional budgets, independently applied to each supporting occurrence:
+tolerant_matches = detector.detect(text, min_match_words=3, max_errors=1, max_missing_words=1)
 for match in matches:
     assert text[match.start : match.end] == match.text
     for reference in match.references:
@@ -69,7 +71,7 @@ annotate(text, format="html")
 get_hadith(hadith_key)
 ```
 
-These top-level functions and fuzzy options are planned for later milestones.
+These top-level functions are planned for later milestones; the instance supports fuzzy budgets now.
 The provisional class API can change before its finalization in Phase 5.
 
 ## Limitations and data rights

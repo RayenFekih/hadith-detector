@@ -1,4 +1,4 @@
-"""Provisional typed exact-match results, with independent metadata snapshots."""
+"""Provisional typed matching results, with independent metadata snapshots."""
 
 from __future__ import annotations
 
@@ -43,13 +43,46 @@ class HadithRecord:
 
 
 @dataclass(frozen=True)
+class WordAlignment:
+    input_token: int
+    source_token: int
+    input_start: int
+    input_end: int
+    source_start: int
+    source_end: int
+    errors: int
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class OmittedSourceToken:
+    source_token: int
+    start: int
+    end: int
+    text: str
+    term: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class SourceOccurrence:
     start: int
     end: int
     text: str
+    errors: int = 0
+    missing_words: int = 0
+    alignment: tuple[WordAlignment, ...] = ()
+    omitted_source_tokens: tuple[OmittedSourceToken, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        result = asdict(self)
+        result["alignment"] = [asdict(word) for word in self.alignment]
+        result["omitted_source_tokens"] = [asdict(word) for word in self.omitted_source_tokens]
+        return result
 
 
 @dataclass(frozen=True)
@@ -71,6 +104,8 @@ class Detection:
     text: str
     matched_words: int
     references: tuple[HadithReference, ...]
+    errors: int = 0
+    missing_words: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -78,5 +113,7 @@ class Detection:
             "end": self.end,
             "text": self.text,
             "matched_words": self.matched_words,
+            "errors": self.errors,
+            "missing_words": self.missing_words,
             "references": [reference.to_dict() for reference in self.references],
         }

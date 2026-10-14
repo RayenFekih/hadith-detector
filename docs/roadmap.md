@@ -11,13 +11,17 @@ Each phase depends on acceptance of its predecessor:
 present changes, checks, limitations, and proposed commits; stop for review and
 approval before starting the next. Publishing is separately approval-gated.
 
-Phase 4A adds an independent fuzzy oracle, complete retrieval experiments and a
-bounded-distance comparison with RapidFuzz. The installed exact detector remains
-unchanged. On 2026-10-14 the maintainer selected RapidFuzz as the sole required
+Phase 4A added an independent fuzzy oracle, complete retrieval experiments and a
+bounded-distance comparison with RapidFuzz, preserving the exact runtime at that milestone.
+On 2026-10-14 the maintainer selected RapidFuzz as the sole required
 production distance engine for Phase 4B, retaining the independent Python implementations
 only in repository tests and benchmarks. No dual runtime backends or acceleration extra
 are planned. Review [Phase 4A evidence and the revised proposal](phase4-fuzzy-benchmark.md)
-before starting Phase 4B; the installed dependencies have not yet changed.
+for the design evidence. The maintainer subsequently authorized Phase 4B implementation:
+the instance API now accepts both budgets, uses RapidFuzz, and returns typed alignment
+traces with complete supporting occurrences. Resource and normalization versions remain 1.
+See [runtime behavior](fuzzy-runtime.md) and [Phase 4B validation](phase4b-validation.md).
+Phase 5 remains pending review and approval.
 
 ## Architectural commitments
 
@@ -43,7 +47,7 @@ before starting Phase 4B; the installed dependencies have not yet changed.
   without rebuilding indexes, LLMs, embeddings, or external APIs.
 - Offline operation is required; zero runtime dependencies is not. Well-maintained
   dependencies may be used in any phase when they improve performance, reliability
-  or maintainability. Existing zero-dependency implementations describe current choices.
+  or maintainability. Historical zero-dependency implementations describe milestone choices.
 - Phase 4 ranks fuzzy cost ties by character edits, then source omissions. Return all
   budget-valid supporting occurrences, with one lowest-cost canonical word trace per
   source span. Internal symbol-expansion omissions are permitted; endpoints stay whole.
@@ -65,7 +69,7 @@ before starting Phase 4B; the installed dependencies have not yet changed.
 Phase 3A runs the comparison and stops for review of the
 [measurements and Phase 3B proposal](phase3-index-benchmark.md).
 See [benchmark usage](index-benchmark.md). The approved trigram/unigram design is
-implemented in Phase 3B. Phase 4 requires a separate plan and approval.
+implemented in Phase 3B. Phase 4A experiments informed the approved Phase 4B design.
 
 Compare a straightforward exhaustive baseline, a positional inverted index, and
 2-, 3-, and 5-word n-gram indexes using identical normalization and queries.
@@ -89,8 +93,8 @@ HadithDetector(...)
 ```
 
 Phase 3B implements provisional typed dataclasses with serialization, original input
-substrings/offsets and all supporting exact references. The final surface will add
-fuzzy matching details and annotation. Each reference
+substrings/offsets and all supporting exact references. Phase 4B adds fuzzy costs,
+word alignments and omitted-token traces. The final surface will add annotation. Each reference
 exposes identifiers, collection/numbering, complete original narration, nullable
 URL, matched source substring/offsets, and fuzzy details.
 
@@ -99,8 +103,7 @@ URL, matched source substring/offsets, and fuzzy details.
 Phase 2 uses canonical JSONL, mapped compatibility normalization, and matching barriers;
 see [data preparation](data-preparation.md). Before implementing the relevant phase,
 use the approved index and complete occurrence representation described in
-[the runtime guide](runtime-index.md), and settle fuzzy limits and completeness policy
-(Phase 4), final model fields,
+[the runtime guide](runtime-index.md) and [fuzzy behavior](fuzzy-runtime.md). Settle final model fields,
 configuration and exception contracts (Phase 5). Benchmark budgets belong in Phase 6.
 Revisit this roadmap openly when implementation evidence requires a change.
 

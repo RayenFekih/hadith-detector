@@ -7,11 +7,16 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Production fuzzy detection with simultaneous character-edit and internal source-word
+  omission budgets, complete anchor retrieval and two-pass occurrence recovery.
+- Per-occurrence costs, canonical word alignments and omitted-token models; JSON result
+  dictionaries now include these fields, including zero-cost traces on exact results.
+
 - Independent exhaustive fuzzy alignment oracle and tiny direct path enumeration.
 - Complete first-word, guaranteed-anchor and trigram-hybrid retrieval experiments,
   with deterministic word traces, internal source omissions and combined budgets.
 - Repository-only RapidFuzz 3.14.6 comparison, isolated timing/memory tooling and
-  supported-version backend compatibility checks. Installed dependencies are unchanged.
+  supported-version backend compatibility checks (Phase 4A).
 
 - Installable `hadith_detector` foundation with metadata-derived version and typing marker.
 - Python 3.11–3.14 policy, uv lockfile, Ruff, strict mypy, pytest, and build validation.
@@ -32,10 +37,13 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Changed
 
+- RapidFuzz is the sole required production distance engine (`>=3.14.6,<4`);
+  Python distance implementations remain repository-only testing/benchmark tools.
+
 - Dependency policy now requires offline operation while allowing evidence-based
-  adoption of maintained dependencies; zero dependencies is a current implementation choice.
+  adoption of maintained dependencies.
 
 - Replaced the unused application scaffold with a library using no runtime dependencies.
 
-Fuzzy matching, annotation and bundled resources remain planned. Runtime distributions
+Annotation and bundled resources remain planned. Runtime distributions
 contain neither the corpus nor preprocessing dependencies.

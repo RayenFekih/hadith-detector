@@ -420,6 +420,9 @@ wheels = [
 [[package]]
 name = "hadith-detector"
 source = { editable = "." }
+dependencies = [
+    { name = "rapidfuzz" },
+]
 
 [package.dev-dependencies]
 benchmark = [
@@ -439,6 +442,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "rapidfuzz", specifier = ">=3.14.6,<4" }]
 
 [package.metadata.requires-dev]
 benchmark = [

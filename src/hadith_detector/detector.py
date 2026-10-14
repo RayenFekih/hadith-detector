@@ -1,4 +1,4 @@
-"""Reusable offline exact detection using explicitly supplied compact resources."""
+"""Reusable offline exact/fuzzy detection using explicitly supplied compact resources."""
 
 from __future__ import annotations
 
@@ -6,20 +6,22 @@ from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 
+from ._fuzzy import FuzzyMatcher
 from ._resources import MAX_U32, Resources, Sequence, query_sequence
 from ._text import tokenize
-from .models import Detection, HadithRecord, HadithReference, SourceOccurrence
+from .models import Detection, HadithRecord, HadithReference, SourceOccurrence, WordAlignment
 
 Run = tuple[int, int, int, int, int]
 
 
 class HadithDetector:
-    """Provisional exact-only API; use :meth:`from_directory` to load an index once."""
+    """Provisional exact/fuzzy API; load explicit local resources once."""
 
-    __slots__ = ("_resources",)
+    __slots__ = ("_resources", "_fuzzy")
 
     def __init__(self, resources: Resources) -> None:
         self._resources = resources
+        self._fuzzy: FuzzyMatcher | None = None
 
     @classmethod
     def from_directory(cls, index_dir: str | Path) -> HadithDetector:
@@ -67,18 +69,36 @@ class HadithDetector:
                     packed = postings[position]
                     yield start, packed >> 32, (packed & MAX_U32) - (anchor - start)
 
-    def detect(self, text: str, *, min_match_words: int = 5) -> list[Detection]:
+    def detect(
+        self,
+        text: str,
+        *,
+        min_match_words: int = 5,
+        max_errors: int = 0,
+        max_missing_words: int = 0,
+    ) -> list[Detection]:
         """Detect ordered normalized substrings and every supporting source occurrence.
 
         Results use exclusive Python character offsets. There are no reference
-        caps, semantic filters, spelling tolerances or omitted-word options.
+        caps or semantic filters. Edits are unit-cost character Levenshtein;
+        omissions skip only internal source words. Booleans are not budgets.
         """
         if not isinstance(text, str):
             raise TypeError("text must be a string")
         minimum = min_match_words
         if isinstance(minimum, bool) or not isinstance(minimum, int) or minimum < 1:
             raise ValueError("min_match_words must be a positive integer")
-        query = query_sequence(tokenize(text).tokens, self._resources.vocabulary)
+        for name, budget in (("max_errors", max_errors), ("max_missing_words", max_missing_words)):
+            if isinstance(budget, bool) or not isinstance(budget, int) or budget < 0:
+                raise ValueError(f"{name} must be a nonnegative integer")
+        tokens = tokenize(text).tokens
+        if len(tokens) < minimum:
+            return []
+        if max_errors or max_missing_words:
+            if self._fuzzy is None:
+                self._fuzzy = FuzzyMatcher(self._resources)
+            return self._fuzzy.detect(text, tokens, minimum, max_errors, max_missing_words)
+        query = query_sequence(tokens, self._resources.vocabulary)
         runs: set[Run] = set()
         covered: dict[tuple[int, int], int] = {}
         for qi, rid, si in self._seeds(query, minimum):
@@ -143,19 +163,40 @@ class HadithDetector:
             pending = remaining
         output = []
         for start, end in sorted(selected):
-            matches: dict[int, set[tuple[int, int]]] = defaultdict(set)
+            matches: dict[int, set[tuple[int, int, int]]] = defaultdict(set)
             for qa, qb, rid, sa, _ in runs:
                 if qa <= start and end <= qb:
                     source = self._resources.sequences[rid]
                     left, right = sa + start - qa, sa + end - qa
                     if source.boundary(left) and source.boundary(right):
-                        matches[rid].add((int(source.starts[left]), int(source.ends[right - 1])))
+                        matches[rid].add(
+                            (int(source.starts[left]), int(source.ends[right - 1]), left)
+                        )
             references = []
             for rid in sorted(matches):
                 source_record = self._resources.records[rid]
+                source = self._resources.sequences[rid]
                 occurrences = tuple(
-                    SourceOccurrence(a, b, source_record["text"][a:b])
-                    for a, b in sorted(matches[rid])
+                    SourceOccurrence(
+                        a,
+                        b,
+                        source_record["text"][a:b],
+                        alignment=tuple(
+                            WordAlignment(
+                                qi,
+                                si,
+                                int(query.starts[qi]),
+                                int(query.ends[qi]),
+                                int(source.starts[si]),
+                                int(source.ends[si]),
+                                0,
+                            )
+                            for qi, si in zip(
+                                range(start, end), range(left, left + end - start), strict=True
+                            )
+                        ),
+                    )
+                    for a, b, left in sorted(matches[rid])
                 )
                 references.append(
                     HadithReference(HadithRecord._from_source(source_record), occurrences)
