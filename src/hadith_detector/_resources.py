@@ -1,4 +1,4 @@
-"""Versioned compact resources: checksummed, little-endian, dependency-free."""
+"""Checksummed prebuilt MARISA v2 resources and compact posting arrays."""
 
 from __future__ import annotations
 
@@ -11,10 +11,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+from ._marisa import TrigramLookup, WordLookup, load_tries
 from ._text import NORMALIZATION_VERSION, Token
 
-INDEX_VERSION = 1
-MAGIC = b"HDIDX001"
+INDEX_VERSION = 2
+MAGIC = b"HDIDX002"
 HEADER = struct.Struct("<8sIIIIQ")
 BLOCK = struct.Struct("<QI")
 MAX_U32 = 2**32 - 1
@@ -24,11 +25,10 @@ LAYOUTS = {
     "record-offsets.bin": (2, 8),
     "unigram-offsets.bin": (3, 12),
     "unigram-postings.bin": (4, 8),
-    "trigram-keys.bin": (5, 12),
     "trigram-offsets.bin": (6, 12),
     "trigram-postings.bin": (7, 8),
 }
-RESOURCE_FILES = frozenset((*LAYOUTS, "records.jsonl", "vocabulary.json"))
+RESOURCE_FILES = frozenset((*LAYOUTS, "records.jsonl", "vocabulary.marisa", "trigrams.marisa"))
 CONFIG_FIELDS = (
     "source_fingerprint",
     "prepared_manifest_sha256",
@@ -139,7 +139,7 @@ class Sequence:
         )
 
 
-def query_sequence(tokens: tuple[Token, ...], vocabulary: dict[str, int]) -> Sequence:
+def query_sequence(tokens: tuple[Token, ...], vocabulary: WordLookup) -> Sequence:
     return Sequence(
         memoryview(array("q", (vocabulary.get(t.term, -1) for t in tokens))),
         memoryview(array("I", (t.start for t in tokens))),
@@ -182,12 +182,12 @@ def validate_record(record: Any) -> dict[str, Any]:
 class Resources:
     records: list[dict[str, Any]]
     sequences: list[Sequence]
-    vocabulary: dict[str, int]
+    vocabulary: WordLookup
     keys: dict[str, int]
     unigram_offsets: array[int]
     unigram_counts: array[int]
     unigram_postings: array[int]
-    trigrams: dict[tuple[int, int, int], int]
+    trigrams: TrigramLookup
     trigram_offsets: array[int]
     trigram_counts: array[int]
     trigram_postings: array[int]
@@ -209,7 +209,10 @@ class Resources:
             or manifest.get("algorithm") != "trigram+unigram"
             or manifest.get("byte_order") != "little"
         ):
-            raise ValueError("Incompatible index format/normalization/algorithm")
+            raise ValueError(
+                "Requires v2 MARISA resources; rebuild offline with --corpus-dir "
+                "and a new --output-dir"
+            )
         if not all(name in manifest for name in CONFIG_FIELDS):
             raise ValueError("Incomplete runtime build provenance")
         fingerprint = hashlib.sha256(
@@ -247,15 +250,8 @@ class Resources:
             or records != sorted(records, key=lambda r: (r["collection"], r["seq"]))
         ):
             raise ValueError("Invalid record count, order or duplicate identities")
-        words = read_json(root / "vocabulary.json")
-        if (
-            not isinstance(words, list)
-            or len(words) != counts["vocabulary"]
-            or not all(isinstance(w, str) and w for w in words)
-            or len(set(words)) != len(words)
-        ):
-            raise ValueError("Invalid vocabulary")
-        vocabulary = {word: i for i, word in enumerate(words)}
+        vocabulary, trigrams, t_keys = load_tries(root, counts)
+        word_count = len(vocabulary)
         payload, size = read_binary(root / "tokens.bin")
         if size != counts["tokens"]:
             raise ValueError("Token count mismatch")
@@ -282,7 +278,7 @@ class Resources:
                     int(column[position])
                     for column in (source.terms, source.starts, source.ends, source.segments)
                 )
-                if word >= len(words) or not 0 <= start < end <= len(record["text"]):
+                if word >= word_count or not 0 <= start < end <= len(record["text"]):
                     raise ValueError("Invalid token ID or original character span")
                 if previous is not None:
                     ps, pe, pg = previous
@@ -301,26 +297,12 @@ class Resources:
             raise ValueError("Invalid trigram occurrence count")
         payload, size = read_binary(root / "unigram-offsets.bin")
         u_offsets, u_counts = directory(payload)
-        if size != len(words):
+        if size != word_count:
             raise ValueError("Invalid unigram directory count")
         payload, size = read_binary(root / "unigram-postings.bin")
         u_postings = native_array("Q", payload)
         if size != counts["tokens"]:
             raise ValueError("Incomplete unigram occurrence inventory")
-        payload, size = read_binary(root / "trigram-keys.bin")
-        t_keys = native_array("I", payload)
-        if size != counts["trigram_keys"]:
-            raise ValueError("Invalid trigram key count")
-        trigrams: dict[tuple[int, int, int], int] = {}
-        previous_key = None
-        for i in range(size):
-            key = (t_keys[i * 3], t_keys[i * 3 + 1], t_keys[i * 3 + 2])
-            if any(k >= len(words) for k in key) or (
-                previous_key is not None and key <= previous_key
-            ):
-                raise ValueError("Invalid trigram key order/bounds")
-            trigrams[key] = i
-            previous_key = key
         payload, size = read_binary(root / "trigram-offsets.bin")
         t_offsets, t_counts = directory(payload)
         if size != len(trigrams):
@@ -342,18 +324,23 @@ class Resources:
             t_counts,
             t_postings,
         )
-        instance._validate_postings()
+        instance._validate_postings(t_keys)
         return instance
 
-    def _validate_postings(self) -> None:
+    def _validate_postings(self, t_keys: array[int]) -> None:
         tables = (
             (
-                [(i,) for i in range(len(self.vocabulary))],
+                ((i,) for i in range(len(self.vocabulary))),
                 self.unigram_offsets,
                 self.unigram_counts,
                 self.unigram_postings,
             ),
-            (list(self.trigrams), self.trigram_offsets, self.trigram_counts, self.trigram_postings),
+            (
+                (tuple(t_keys[i : i + 3]) for i in range(0, len(t_keys), 3)),
+                self.trigram_offsets,
+                self.trigram_counts,
+                self.trigram_postings,
+            ),
         )
         for keys, offsets, counts, postings in tables:
             consumed = 0

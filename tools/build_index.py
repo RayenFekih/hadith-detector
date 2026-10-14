@@ -11,8 +11,12 @@ import tempfile
 import time
 import unicodedata
 from array import array
+from importlib.metadata import version
 from pathlib import Path
 
+import marisa_trie
+
+from hadith_detector._marisa import OPTIONS, encode_trigram
 from hadith_detector._resources import (
     BLOCK,
     HEADER,
@@ -72,6 +76,8 @@ def write_table(root: Path, name: str, keys: list[tuple[int, ...]], table: dict)
 def build(corpus_dir: Path, output_dir: Path) -> dict:
     if sys.version_info[:2] != (3, 14):
         raise ValueError("Runtime index builds require the pinned Python 3.14 environment")
+    if version("marisa-trie") != "1.4.1":
+        raise ValueError("Index builds require marisa-trie 1.4.1")
     output_dir = output_dir.resolve()
     if output_dir.exists():
         raise ValueError("Output directory already exists; choose a new directory")
@@ -85,7 +91,9 @@ def build(corpus_dir: Path, output_dir: Path) -> dict:
     try:
         shutil.copyfile(corpus_dir / "records.jsonl", staging / "records.jsonl")
         words = sorted(corpus.vocabulary, key=corpus.vocabulary.__getitem__)
-        (staging / "vocabulary.json").write_bytes(canonical(words))
+        marisa_trie.RecordTrie(
+            "<I", ((word, (wid,)) for wid, word in enumerate(words)), **OPTIONS
+        ).save(str(staging / "vocabulary.marisa"))
         fields = array("I")
         boundaries = array("Q", [0])
         for source in corpus.sequences:
@@ -100,15 +108,16 @@ def build(corpus_dir: Path, output_dir: Path) -> dict:
         write_array(staging / "record-offsets.bin", boundaries, len(boundaries))
         write_table(staging, "unigram", [(i,) for i in range(len(words))], index.unigrams)
         keys = sorted(index.ngrams)
-        write_array(
-            staging / "trigram-keys.bin", array("I", (w for key in keys for w in key)), len(keys)
-        )
+        marisa_trie.RecordTrie(
+            "<I", ((encode_trigram(key), (block,)) for block, key in enumerate(keys)), **OPTIONS
+        ).save(str(staging / "trigrams.marisa"))
         write_table(staging, "trigram", keys, index.ngrams)
         count_grams = sum(len(v) for v in index.ngrams.values())
         if count_grams > MAX_U32:
             raise ValueError("Corpus exceeds supported trigram-count bounds")
         code_files = (
             "tools/build_index.py",
+            "src/hadith_detector/_marisa.py",
             "tools/exact_benchmark/corpus.py",
             "tools/exact_benchmark/indexes.py",
             "src/hadith_detector/_resources.py",
@@ -129,6 +138,9 @@ def build(corpus_dir: Path, output_dir: Path) -> dict:
             else None,
             "builder": {
                 "python": platform.python_version(),
+                "marisa_trie": version("marisa-trie"),
+                "native_settings": OPTIONS,
+                "dependency_lock_sha256": checksum(ROOT / "uv.lock"),
                 "unicode": unicodedata.unidata_version,
                 "sources": {
                     name: hashlib.sha256(

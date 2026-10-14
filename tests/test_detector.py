@@ -219,8 +219,12 @@ def test_malformed_resources_rejected(index, damage):
         manifest["versions"]["index"] = 999
         (output / "manifest.json").write_bytes(canonical(manifest))
     elif damage == "vocabulary":
-        (output / "vocabulary.json").write_bytes(canonical(["عن", "عن"]))
-        rehash(output, "vocabulary.json")
+        import marisa_trie
+
+        marisa_trie.RecordTrie("<I", [("عن", (0,)), ("عن", (1,))]).save(
+            str(output / "vocabulary.marisa")
+        )
+        rehash(output, "vocabulary.marisa")
     else:
         filename = {"postings": "unigram-postings.bin", "directory": "unigram-offsets.bin"}.get(
             damage, "tokens.bin"

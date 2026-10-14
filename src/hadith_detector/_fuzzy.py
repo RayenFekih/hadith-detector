@@ -40,7 +40,7 @@ class FuzzyMatcher:
             raise RuntimeError("Fuzzy matching requires a working RapidFuzz installation") from exc
         self.kernel = Levenshtein.distance
         self.data = resources
-        self.words = {wid: term for term, wid in resources.vocabulary.items()}
+        self.words = dict(sorted((wid, term) for term, wid in resources.vocabulary.items()))
         self.buckets: dict[int, list[int]] = defaultdict(list)
         for wid, word in self.words.items():
             self.buckets[len(word)].append(wid)

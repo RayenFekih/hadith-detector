@@ -51,17 +51,20 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "hadith_detector/__init__.py" in names
         assert "hadith_detector/py.typed" in names
         assert "hadith_detector/_text.py" in names
-        for module in ("detector", "models", "_resources", "_fuzzy"):
+        for module in ("detector", "models", "_resources", "_fuzzy", "_marisa"):
             assert f"hadith_detector/{module}.py" in names
         assert metadata["Name"] == "hadith-detector"
         assert metadata["Requires-Python"] == ">=3.11"
         assert metadata["License-Expression"] == "MIT"
-        assert metadata.get_all("Requires-Dist", []) == ["rapidfuzz<4,>=3.14.6"]
+        assert set(metadata.get_all("Requires-Dist", [])) == {
+            "rapidfuzz<4,>=3.14.6",
+            "marisa-trie==1.4.1",
+        }
         assert metadata.get_all("Provides-Extra", []) == []
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
-        assert not any(n.endswith((".jsonl", ".parquet", ".bin")) for n in names)
+        assert not any(n.endswith((".jsonl", ".parquet", ".bin", ".marisa")) for n in names)
         assert not any("fuzzy_benchmark" in n for n in names)
     with zipfile.ZipFile(rebuilt) as archive:
         rebuilt_metadata = BytesParser().parsebytes(
@@ -109,6 +112,7 @@ def test_clean_wheel_install(
         uv,
         "pip",
         "install",
+        "--offline",
         "--python",
         str(python),
         str(artifacts[artifact_index]),
@@ -134,6 +138,7 @@ assert files('hadith_detector').joinpath('py.typed').is_file()
 assert callable(hadith_detector.HadithDetector.from_directory)
 assert not hasattr(hadith_detector, 'detect')
 assert find_spec('rapidfuzz') is not None
+assert find_spec('marisa_trie') is not None
 assert 'rapidfuzz' not in __import__('sys').modules
 from rapidfuzz.distance import Levenshtein
 assert Levenshtein.distance('سلام', 'سلا', score_cutoff=1) == 1
