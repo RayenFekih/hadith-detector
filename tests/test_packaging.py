@@ -57,6 +57,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
             "config",
             "_convenience",
             "_serialization",
+            "_annotation",
             "_resources",
             "_fuzzy",
             "_marisa",
@@ -161,6 +162,20 @@ assert hadith_detector.Detection.from_dict(json.loads(json.dumps(result[0].to_di
 assert hadith_detector.detect(result[0].text, index_dir=detector.index_dir,
                              config=hadith_detector.DetectorConfig(max_errors=1)) == result
 assert hadith_detector.get_hadith('fixture:1', index_dir=detector.index_dir).sunnah_url is None
+from html.parser import HTMLParser
+class Text(HTMLParser):
+    def __init__(self, html):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.feed(html)
+        self.close()
+    def handle_data(self, value):
+        self.parts.append(value)
+text = '<script>alert(1)</script> &amp; ' + result[0].text
+html = detector.annotate(text, max_errors=1)
+assert ''.join(Text(html).parts) == text
+assert '<script' not in html and 'class="hadith-match"' in html
+assert hadith_detector.annotate(text, index_dir=detector.index_dir, max_errors=1) == html
 hadith_detector.clear_cache()
 print(json.dumps({'file': hadith_detector.__file__}))
 """

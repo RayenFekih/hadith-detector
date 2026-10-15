@@ -5,6 +5,7 @@ import hashlib
 import json
 import platform
 import socket
+from html.parser import HTMLParser
 from importlib.metadata import requires, version
 from pathlib import Path
 
@@ -48,6 +49,21 @@ def main():
                 for result in results
                 for ref in result.references
             )
+            html = detector.annotate(source["text"], max_errors=errors, max_missing_words=missing)
+
+            class Text(HTMLParser):
+                def __init__(self):
+                    super().__init__(convert_charrefs=True)
+                    self.parts = []
+
+                def handle_data(self, value):
+                    self.parts.append(value)
+
+            decoded = Text()
+            decoded.feed(html)
+            decoded.close()
+            assert "".join(decoded.parts) == source["text"]
+            assert 'class="hadith-match"' in html
             for result in results:
                 assert Detection.from_dict(json.loads(json.dumps(result.to_dict()))) == result
                 assert source["text"][result.start : result.end] == result.text
@@ -68,6 +84,9 @@ def main():
         max_missing_words=0,
     )
     assert cached == detector.detect(source["text"])
+    assert hadith_detector.annotate(source["text"], index_dir=args.index_dir) == detector.annotate(
+        source["text"]
+    )
     assert len(calls) == 4
     hadith_detector.clear_cache()
     try:
@@ -83,6 +102,7 @@ def main():
         "version": hadith_detector.__version__,
         "index_version": INDEX_VERSION,
         "offline": True,
+        "annotation": True,
         "prebuilt_only": True,
         "v1_rejected": True,
         "package": hadith_detector.__file__,

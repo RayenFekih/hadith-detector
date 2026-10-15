@@ -19,7 +19,7 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate(index, evidence, representative, output):
+def validate(index, evidence, representative, output, *, annotation=False):
     import psutil
 
     if output.exists():
@@ -40,8 +40,10 @@ def validate(index, evidence, representative, output):
     process = psutil.Process()
     loaded_rss = process.memory_info().rss
     timings = []
+    annotation_cases = 0
 
     def check(q, expected, exact=False):
+        nonlocal annotation_cases
         started = time.perf_counter()
         results = detector.detect(
             q["text"],
@@ -64,6 +66,17 @@ def validate(index, evidence, representative, output):
                 assert reference.record.text == original
                 for occurrence in reference.occurrences:
                     assert original[occurrence.start : occurrence.end] == occurrence.text
+        if annotation:
+            from tools.annotation_validation import assert_annotation
+
+            html = detector.annotate(
+                q["text"],
+                min_match_words=q["minimum"],
+                max_errors=q.get("errors", 0),
+                max_missing_words=q.get("missing", 0),
+            )
+            assert_annotation(html, q["text"], results)
+            annotation_cases += 1
         return seconds
 
     expected = read(evidence / "expected.json")
@@ -90,6 +103,7 @@ def validate(index, evidence, representative, output):
         "exact_cases": len(exact),
         "representative_cases": len(representative_suite["queries"]),
         "metadata_records": len(detector._resources.records),
+        "annotation_cases": annotation_cases,
         "python": platform.python_version(),
         "os": platform.platform(),
         "rapidfuzz": version("rapidfuzz"),
@@ -122,10 +136,12 @@ if __name__ == "__main__":
     parser.add_argument("--evidence-dir", type=Path, required=True)
     parser.add_argument("--representative-suite", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--annotation", action="store_true", help="Also verify HTML annotation")
     args = parser.parse_args()
     validate(
         args.index_dir.resolve(),
         args.evidence_dir.resolve(),
         args.representative_suite.resolve(),
         args.output.resolve(),
+        annotation=args.annotation,
     )
