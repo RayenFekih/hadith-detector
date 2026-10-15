@@ -3,6 +3,7 @@
 from pathlib import Path
 from threading import RLock
 
+from ._annotation import validate
 from .config import DetectorConfig
 from .detector import HadithDetector
 from .models import Detection, HadithRecord
@@ -45,6 +46,32 @@ def detect(
     )
     return _detector(index_dir).detect(
         text,
+        min_match_words=effective.min_match_words,
+        max_errors=effective.max_errors,
+        max_missing_words=effective.max_missing_words,
+    )
+
+
+def annotate(
+    text: str,
+    *,
+    index_dir: str | Path,
+    format: str = "html",
+    config: DetectorConfig | None = None,
+    min_match_words: int | None = None,
+    max_errors: int | None = None,
+    max_missing_words: int | None = None,
+) -> str:
+    """Annotate plain text using the single cached detector and per-call settings."""
+    validate(text, format)
+    if config is not None and not isinstance(config, DetectorConfig):
+        raise TypeError("config must be a DetectorConfig or None")
+    effective = (config if config is not None else DetectorConfig())._override(
+        min_match_words, max_errors, max_missing_words
+    )
+    return _detector(index_dir).annotate(
+        text,
+        format=format,
         min_match_words=effective.min_match_words,
         max_errors=effective.max_errors,
         max_missing_words=effective.max_missing_words,

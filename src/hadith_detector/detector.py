@@ -7,6 +7,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from threading import RLock
 
+from ._annotation import render, validate
 from ._fuzzy import FuzzyMatcher
 from ._resources import MAX_U32, Resources, Sequence, query_sequence
 from ._text import tokenize
@@ -72,6 +73,31 @@ class HadithDetector:
                 max_errors=config.max_errors,
                 max_missing_words=config.max_missing_words,
             )
+
+    def annotate(
+        self,
+        text: str,
+        *,
+        format: str = "html",
+        min_match_words: int | None = None,
+        max_errors: int | None = None,
+        max_missing_words: int | None = None,
+    ) -> str:
+        """Escape plain text and highlight original detected spans in an HTML fragment.
+
+        Calls on this instance execute sequentially. Only HTML is supported;
+        NUL and lone surrogates cannot be represented losslessly and are rejected.
+        Offsets in markup refer to the original Python string, not the HTML output.
+        """
+        with self._lock:
+            validate(text, format)
+            matches = self.detect(
+                text,
+                min_match_words=min_match_words,
+                max_errors=max_errors,
+                max_missing_words=max_missing_words,
+            )
+            return render(text, matches)
 
     def _seeds(self, query: Sequence, minimum: int) -> Iterator[tuple[int, int, int]]:
         data = self._resources

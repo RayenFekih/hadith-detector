@@ -16,6 +16,7 @@ def test_version_matches_distribution() -> None:
         "HadithDetector",
         "DetectorConfig",
         "detect",
+        "annotate",
         "get_hadith",
         "clear_cache",
         "HadithRecord",
@@ -37,7 +38,7 @@ import hadith_detector
 from importlib.metadata import version
 assert hadith_detector.__version__ == version('hadith-detector')
 assert callable(hadith_detector.detect)
-assert not hasattr(hadith_detector, 'annotate')
+assert callable(hadith_detector.annotate)
 """
     subprocess.run(
         [sys.executable, "-I", "-B", "-c", script],

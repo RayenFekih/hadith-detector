@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from ._convenience import clear_cache, detect, get_hadith
+from ._convenience import annotate, clear_cache, detect, get_hadith
 from .config import DetectorConfig
 from .detector import HadithDetector
 from .models import (
@@ -21,6 +21,7 @@ __all__ = [
     "HadithDetector",
     "DetectorConfig",
     "detect",
+    "annotate",
     "get_hadith",
     "clear_cache",
     "HadithRecord",
