@@ -3,12 +3,11 @@
 An offline Python library for finding Arabic Hadith quotations and returning
 independently supporting source references.
 
-**Status: public API finalized in Phase 5A.** Exact and fuzzy ordered matching,
+**Status: public API and safe HTML annotation (Phase 5B).** Exact and fuzzy ordered matching,
 multiple passages, configuration, source lookup, dictionary round trips and
-convenience calls work with explicit local resources. Character edits and internal
+convenience calls and HTML annotation work with explicit local resources. Character edits and internal
 source-word omissions work together. One combined Bukhari/Muslim corpus will be
-bundled in Phase 7; no corpus is bundled or release published yet. HTML annotation
-remains planned for Phase 5B.
+bundled in Phase 7; no corpus is bundled or release published yet.
 
 ## Installation and local resources
 
@@ -85,8 +84,19 @@ clear_cache()
 Convenience calls reuse a single cached detector. Omitted/`None` settings inherit
 configuration; explicit zero overrides its error or omission budget. `index_dir`
 is required for now. Run the [three repository examples](examples/public_api.py) with
-`uv run python examples/public_api.py data/runtime-index-v2-a`. `annotate(text, format="html", ...)` is a **planned API**,
-not implemented or exported.
+`uv run python examples/public_api.py data/runtime-index-v2-a`.
+
+```python
+from hadith_detector import annotate
+
+html = annotate(text, index_dir="data/runtime-index", min_match_words=3, max_errors=1)
+```
+
+Annotation escapes plain input text and highlights the original detected spans.
+It returns an HTML fragment with fixed `<mark>` elements; selection and offsets
+follow detection unchanged. See [the HTML guide](docs/html-annotation.md) for
+escaping, original whitespace display and annotation-only character restrictions.
+[Phase 5B verification](docs/phase5b-validation.md) records review evidence.
 
 ## Limitations and data rights
 

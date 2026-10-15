@@ -140,7 +140,7 @@ Matching, MARISA v2, RapidFuzz, normalization v1 and source data remain unchange
 Phase 5A is accepted following regression, full-corpus oracle, packaging and
 Python 3.11-3.14 compatibility checks. The [Phase 5A review report](phase5a-validation.md)
 records verification. The [Phase 5B proposal](phase5b-plan.md) covers safe HTML
-annotation and remains subject to plan approval and an implementation instruction.
+annotation; the maintainer approved the plan and authorized Phase 5B implementation.
 Phase 7 will make resource arguments optional with bundled defaults.
 
 Proposed Phase 5A commits, only when requested:
@@ -149,3 +149,9 @@ Proposed Phase 5A commits, only when requested:
 2. `feat: add validated result deserialization`
 3. `test: verify public API caching and concurrency contracts`
 4. `docs: document finalized public API`
+
+Phase 5B adds escaped fragments through the existing detector, fixed mark attributes,
+original text/offset preservation and annotation-only NUL/surrogate rejection.
+See the [HTML guide](html-annotation.md) and [review report](phase5b-validation.md).
+Phase 5B stops for verification review;
+Phase 6 has not begun. Algorithms, dependencies and resources remain unchanged.

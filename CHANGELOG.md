@@ -7,6 +7,11 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Instance and convenience `annotate()` methods returning safely escaped HTML
+  fragments with fixed marks, original offsets and best supporting costs (Phase 5B).
+- Text/offset round trips, injection, exact/fuzzy parity and annotation concurrency checks.
+- Carriage-return preservation and explicit annotation-only rejection of NUL/lone surrogates.
+
 - Frozen `DetectorConfig`, directory constructor, read-only resolved `index_dir`,
   and convenience `detect()`/`get_hadith()` with a synchronized single-entry cache.
 - Validated result `from_dict()` methods and isolated JSON metadata round trips.

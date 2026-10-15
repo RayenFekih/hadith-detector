@@ -151,5 +151,4 @@ uv run --group benchmark python -m tools.validate_runtime_index run --index-dir 
 Ordinary CI uses synthetic resources and never downloads the corpus. Full-corpus
 evidence and measured limitations are recorded in [the validation report](phase3b-validation.md).
 Phase 4B adds fuzzy matching and omitted source words; see [fuzzy behavior](fuzzy-runtime.md)
-and [its validation report](phase4b-validation.md). HTML annotation and packaged resources
-remain later milestones.
+and [its validation report](phase4b-validation.md). Phase 5B adds [safe HTML annotation](html-annotation.md); packaged resources remain later work.

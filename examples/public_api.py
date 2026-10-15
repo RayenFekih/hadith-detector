@@ -31,6 +31,7 @@ def main() -> None:
         restored = Detection.from_dict(json.loads(json.dumps(match.to_dict())))
         assert restored == match
         print("Combined costs:", (match.errors, match.missing_words))
+    print("Escaped annotation:", detector.annotate("<script>literal text</script> " + text))
     clear_cache()
 
 

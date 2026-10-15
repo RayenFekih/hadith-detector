@@ -72,7 +72,7 @@ uv run --group benchmark python -m tools.validate_fuzzy_runtime --index-dir data
 
 Choose a new report filename each run. Keep generated data ignored. Textual support is
 not independent authentication; common chains and embedded Quranic passages can match.
-Annotation and corpus bundling remain later milestones; convenience functions are implemented.
+Phase 5B adds [HTML annotation](html-annotation.md); corpus bundling remains later work.
 
 Phase 5A adds frozen defaults and sequential shared-instance calls. Omitted/None
 settings inherit configuration; explicit zero overrides it. See [public API](public-api.md).

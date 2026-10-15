@@ -1,9 +1,8 @@
-# Public API (Phase 5A)
+# Public API (Phases 5A and 5B)
 
 The target is one combined Sahih Bukhari/Sahih Muslim corpus. Until Phase 7,
 every constructor and convenience call requires an explicit local `index_dir`.
-Nothing is downloaded, rebuilt or bundled by this milestone. HTML annotation
-is reserved for Phase 5B and is not exported.
+Nothing is downloaded, rebuilt or bundled by this milestone. HTML annotation is available in Phase 5B; see [annotation behavior](html-annotation.md).
 
 ## Construction and configuration
 
@@ -67,8 +66,8 @@ There is no global dataset configuration or configurable cache capacity.
 
 ## Thread safety and costs
 
-A reentrant per-instance lock protects detection, lazy fuzzy state and source
-lookup. Concurrent calls on the same instance execute sequentially. Independent
+A reentrant per-instance lock protects detection, lazy fuzzy state, source
+lookup and annotation through completion of rendering. Concurrent calls on the same instance execute sequentially. Independent
 instances have independent fuzzy caches; this API provides no parallel or async
 execution facility. The convenience-cache lock protects creation only and is
 released before running detection. Clearing the cache can complete while an
@@ -126,5 +125,13 @@ invalid types with `TypeError` and invalid relationships/shapes with `ValueError
 Offsets slice the original Python strings, with exclusive ends. Complete source
 identities, occurrences and canonical alignments are preserved. Textual support
 does not independently authenticate Hadith; common chains and embedded Quranic
-passages can match source text. Annotation, independent real-world evaluation and
-bundled-resource installation remain later work.
+passages can match source text. Independent real-world evaluation and bundled-resource installation remain later work.
+
+## Annotation
+
+`detector.annotate()` and top-level `annotate()` return escaped HTML fragments.
+They accept the same settings as detection, with `format="html"` as the only format.
+The convenience function requires `index_dir` and accepts per-call `config`.
+Original text and input offsets are preserved; detection selection is unchanged.
+See [HTML annotation](html-annotation.md) for fixed markup, escaping, presentation,
+NUL/surrogate restrictions and thread safety.
