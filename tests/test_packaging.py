@@ -1,16 +1,23 @@
 """Build artifacts and install them independently of the development checkout."""
 
+import hashlib
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tarfile
+import tomllib
 import zipfile
 from email.parser import BytesParser
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
+from urllib.request import urlopen
 
 import pytest
+from packaging.requirements import Requirement
+from packaging.tags import sys_tags
+from packaging.utils import canonicalize_name, parse_wheel_filename
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.packaging
@@ -39,6 +46,47 @@ def artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Pat
     rebuilt = workspace / "rebuilt"
     run(uv, "build", "--wheel", "--no-sources", "--out-dir", str(rebuilt), cwd=source)
     return wheel, sdist, next(rebuilt.glob("*.whl"))
+
+
+@pytest.fixture(scope="module")
+def wheelhouse(
+    artifacts: tuple[Path, Path, Path], tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """Acquire hash-locked runtime wheels before the isolated offline installation.
+
+    A frozen uv sync can install wheels without populating the registry metadata
+    needed by a subsequent offline pip resolver. Do not depend on that cache.
+    """
+    destination = tmp_path_factory.mktemp("wheelhouse")
+    lock = tomllib.loads((ROOT / "uv.lock").read_text(encoding="utf-8"))
+    tags = {tag: rank for rank, tag in enumerate(sys_tags())}
+    with zipfile.ZipFile(artifacts[0]) as archive:
+        metadata = BytesParser().parsebytes(
+            archive.read(next(n for n in archive.namelist() if n.endswith("/METADATA")))
+        )
+    for value in metadata.get_all("Requires-Dist", []):
+        requirement = Requirement(value)
+        if requirement.marker is not None and not requirement.marker.evaluate():
+            continue
+        candidates = []
+        for package in lock["package"]:
+            if canonicalize_name(package["name"]) != canonicalize_name(requirement.name):
+                continue
+            if package["version"] not in requirement.specifier:
+                continue
+            for wheel in package.get("wheels", []):
+                filename = unquote(urlsplit(wheel["url"]).path.rsplit("/", 1)[1])
+                wheel_tags = parse_wheel_filename(filename)[3]
+                compatible = tags.keys() & wheel_tags
+                if compatible:
+                    candidates.append((min(tags[tag] for tag in compatible), filename, wheel))
+        assert candidates, f"No locked compatible wheel for {requirement}"
+        _, filename, wheel = min(candidates, key=lambda item: (item[0], item[1]))
+        with urlopen(wheel["url"], timeout=60) as response:
+            content = response.read()
+        assert f"sha256:{hashlib.sha256(content).hexdigest()}" == wheel["hash"]
+        (destination / filename).write_bytes(content)
+    return destination
 
 
 def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> None:
@@ -111,7 +159,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
 
 @pytest.mark.parametrize("artifact_index", [0, 2], ids=["checkout-wheel", "sdist-wheel"])
 def test_clean_wheel_install(
-    artifacts: tuple[Path, Path, Path], tmp_path: Path, artifact_index: int
+    artifacts: tuple[Path, Path, Path], wheelhouse: Path, tmp_path: Path, artifact_index: int
 ) -> None:
     uv = shutil.which("uv")
     assert uv is not None
@@ -123,6 +171,10 @@ def test_clean_wheel_install(
         "pip",
         "install",
         "--offline",
+        "--no-index",
+        "--no-cache",
+        "--find-links",
+        str(wheelhouse),
         "--python",
         str(python),
         str(artifacts[artifact_index]),

@@ -5,6 +5,11 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Unreleased
 
+### Fixed
+
+- Clean-wheel CI checks now install from hash-verified locked dependency wheels,
+  without relying on uv registry metadata left in a developer's cache.
+
 ### Added
 
 - Instance and convenience `annotate()` methods returning safely escaped HTML

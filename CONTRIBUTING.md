@@ -20,7 +20,12 @@ In PowerShell, if wildcard expansion for twine is unavailable, use
 `Get-ChildItem dist -File | ForEach-Object { uv run twine check $_.FullName }`.
 Packaging tests invoke uv, resolve isolated build dependencies, build a wheel from
 an sdist without Git metadata, and install both wheels in fresh environments.
-These development operations may access the network; runtime imports do not.
+Preparation downloads compatible runtime dependency wheels listed in `uv.lock`
+and verifies their SHA-256 hashes. Both clean installations then use that local
+wheelhouse with `--offline --no-index --no-cache`, so a warm registry cache cannot
+hide missing dependencies. Installed-library probes also block network access.
+Build/dependency preparation may access the network; offline installation and
+runtime imports do not.
 Use `uv run pytest -m "not packaging"` for the fast foundation checks.
 
 Phase 2 preprocessing uses `uv sync --locked --group data`. Run its tests with
