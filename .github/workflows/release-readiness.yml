@@ -1,0 +1,78 @@
+name: Release readiness (no publishing)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.26'
+          python-version: '3.14.6'
+          enable-cache: true
+      - run: uv sync --locked --group data
+      - name: Acquire pinned sources
+        run: uv run --frozen --group data python -m tools.prepare_data fetch --source-dir data/release-source
+      - name: Prepare and verify offline
+        run: |
+          uv run --offline --frozen --group data python -m tools.prepare_data build --source-dir data/release-source --output-dir data/release-prepared
+          uv run --offline --frozen --group data python -m tools.prepare_data verify --source-dir data/release-source --output-dir data/release-prepared
+          uv run --offline --frozen python -m tools.build_index --corpus-dir data/release-prepared --output-dir data/release-index
+          uv run --offline --frozen python -m tools.stage_bundle --index-dir data/release-index
+      - run: uv build --no-sources
+      - run: uv run --frozen twine check dist/*
+      - name: Validate and rebuild the candidate sdist offline
+        run: |
+          uv pip install setuptools==84.0.0 setuptools-scm==10.3.4 vcs-versioning==2.6.0
+          uv run --offline --frozen python -m tools.release_artifacts --dist-dir dist --rebuild-dir .cache/release-rebuild
+          uv run --frozen twine check .cache/release-rebuild/*.whl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidates
+          include-hidden-files: true
+          path: |
+            dist/*
+            .cache/release-rebuild/*.whl
+            data/release-artifacts.json
+          retention-days: 14
+
+  installed:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.26'
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidates
+          path: .cache/candidates
+      - name: Install and exercise both wheels offline
+        run: uv run --frozen python -m tools.release_install --artifacts-dir .cache/candidates --output-dir .cache/installed-checks
+      - name: Runtime and resource regressions
+        run: uv run --frozen pytest tests/test_bundled.py tests/test_public_api.py tests/test_annotation.py tests/test_detector.py tests/test_fuzzy_detector.py tests/test_marisa_resources.py tests/test_text.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installed-${{ matrix.os }}-${{ matrix.python }}
+          path: .cache/installed-checks/*.json
+          retention-days: 14
