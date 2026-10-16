@@ -65,4 +65,7 @@ data/*
 
 # Local research (preserved, not part of the supported package)
 notebooks/*
+!notebooks/phase6_review.ipynb
+!notebooks/phase6_research_review.ipynb
+!notebooks/phase6_review_50.ipynb
 others/*
