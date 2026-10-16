@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "selection": "First five eligible paragraphs per pinned page, before detector runs; 20-260 whitespace words, 120-2200 characters; quotation-rich paragraphs additionally mention the Prophet or Messenger. Original extracted text is retained.",
+  "pages": [
+    {"host": "ar.wikisource.org", "title": "جامع العلوم والحكم/الحديث الأول", "stratum": "quotation_rich", "count": 5},
+    {"host": "ar.wikisource.org", "title": "جامع العلوم والحكم/الحديث الثاني", "stratum": "quotation_rich", "count": 5},
+    {"host": "ar.wikisource.org", "title": "جامع العلوم والحكم/الحديث الثالث", "stratum": "quotation_rich", "count": 5},
+    {"host": "ar.wikisource.org", "title": "جامع العلوم والحكم/الحديث الرابع", "stratum": "quotation_rich", "count": 5},
+    {"host": "ar.wikipedia.org", "title": "دورة الماء", "stratum": "general_arabic", "count": 5},
+    {"host": "ar.wikipedia.org", "title": "تركيب ضوئي", "stratum": "general_arabic", "count": 5},
+    {"host": "ar.wikipedia.org", "title": "المجموعة الشمسية", "stratum": "general_arabic", "count": 5},
+    {"host": "ar.wikipedia.org", "title": "طباعة", "stratum": "general_arabic", "count": 5}
+  ],
+  "reuse": {
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use",
+    "attribution": "Page title, permanent revision URL and history URL identify Wikimedia contributors; the Wikisource original work is by Ibn Rajab al-Hanbali (died 1393).",
+    "changes": "Plain text extracted from HTML paragraph elements; reference superscripts and HTML tags removed; br becomes LF; no matching normalization or spelling repair. Dataset annotations are separate, provisional additions.",
+    "scope": "Natural-source snapshots/excerpts and their attribution retain their source terms; the repository MIT code license does not replace them. No images or other media are collected."
+  }
+}

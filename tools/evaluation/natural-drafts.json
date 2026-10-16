@@ -1,0 +1,341 @@
+{
+  "annotations": {
+    "N0001": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 260,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 95
+        }
+      ],
+      "text_sha256": "655fff27d6cd98bb7bce2bd2dcffb7e8fb3da8dd4091f204de10799036b4d5a0"
+    },
+    "N0002": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 128,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 94
+        },
+        {
+          "end": 183,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 163
+        }
+      ],
+      "text_sha256": "2868f26f18b90bfcec57aa665243d4105c9d11ecd3c5d42d61dcc0079948a431"
+    },
+    "N0003": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 264,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 244
+        },
+        {
+          "end": 332,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 297
+        },
+        {
+          "end": 421,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 365
+        },
+        {
+          "end": 476,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 454
+        }
+      ],
+      "text_sha256": "2cb17f57781eaaaa069e0c05322ff07cf4c70612834c11ed627c1c646ecf3b33"
+    },
+    "N0004": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 259,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 244
+        }
+      ],
+      "text_sha256": "22ef0dde6ef5344d9e612a5ab1b7db295377020f6f05c55f5719fcbbfc6c6e73"
+    },
+    "N0005": {
+      "case_label": "quotation_free",
+      "proposals": [],
+      "text_sha256": "8645279438fa90de551ca771ed3655d09ea9066a1adf2381bb626788367e94cc"
+    },
+    "N0006": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 945,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 40
+        }
+      ],
+      "text_sha256": "d02ef09dc9ab129a10ddfc9a39291629d586508e14ab24550bd88ed605030765"
+    },
+    "N0007": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 155,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 104
+        }
+      ],
+      "text_sha256": "aeb01cbaba2345a7d9bf9c46edcb66f56762428ca62e531cc0d60d171c6b2fa1"
+    },
+    "N0008": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 357,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 82
+        }
+      ],
+      "text_sha256": "4317ad4ba3d90513438821609328809de589873e16c2d23a2d6facdc9cc57813"
+    },
+    "N0009": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 407,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 372
+        },
+        {
+          "end": 990,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 570
+        },
+        {
+          "end": 1093,
+          "flags": "assistant_draft_not_gold;quranic_wording_may_match_hadith_corpus",
+          "label": "quranic_wording",
+          "note": "Source presents this as a Quranic citation; separately review any intended Hadith quotation.",
+          "start": 1003
+        }
+      ],
+      "text_sha256": "51425466e32db8de8dabb27d6668a2d1a855597cb2af888e0ba35fffde740cf5"
+    },
+    "N0010": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 336,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 262
+        },
+        {
+          "end": 478,
+          "flags": "assistant_draft_not_gold;quranic_wording_may_match_hadith_corpus",
+          "label": "quranic_wording",
+          "note": "Source presents this as a Quranic citation; separately review any intended Hadith quotation.",
+          "start": 407
+        },
+        {
+          "end": 589,
+          "flags": "assistant_draft_not_gold;quranic_wording_may_match_hadith_corpus",
+          "label": "quranic_wording",
+          "note": "Source presents this as a Quranic citation; separately review any intended Hadith quotation.",
+          "start": 499
+        },
+        {
+          "end": 700,
+          "flags": "assistant_draft_not_gold;quranic_wording_may_match_hadith_corpus",
+          "label": "quranic_wording",
+          "note": "Source presents this as a Quranic citation; separately review any intended Hadith quotation.",
+          "start": 608
+        }
+      ],
+      "text_sha256": "38a5adc6152a3978749169cecd5c74774c50662d228380f33b002240cd8180c5"
+    },
+    "N0011": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 216,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 101
+        }
+      ],
+      "text_sha256": "63956eb527be09444f6b65dd7f940271cddf046370a5d789800c3ef97c505d34"
+    },
+    "N0012": {
+      "case_label": "quotation_free",
+      "proposals": [],
+      "text_sha256": "a1026b1b4ddeffb3465c907fe44f58880749a457e26dd4d0c936796e026579d9"
+    },
+    "N0013": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 105,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 67
+        }
+      ],
+      "text_sha256": "4529a1563f7beaa06d8416b970b9a88416817d7a674a6a9a8e458e457740e44a"
+    },
+    "N0014": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 151,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 94
+        },
+        {
+          "end": 238,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 207
+        }
+      ],
+      "text_sha256": "71cf57992287d3b23b2a82ae9e7190625774ade579f027d5f70c411863c41dcc"
+    },
+    "N0015": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 157,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 73
+        }
+      ],
+      "text_sha256": "181c49884a3dce56fc51c410ab8c7aaa48e5eeb1ed612ee91556ba58a970d4b7"
+    },
+    "N0016": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 528,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 106
+        }
+      ],
+      "text_sha256": "26e42dbcf4d8eaeb6d008dafb7af9133a492971e30ebb3a88c8edf8b3bcdac60"
+    },
+    "N0017": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 361,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "uncertain",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 331
+        },
+        {
+          "end": 561,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 515
+        },
+        {
+          "end": 1061,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 894
+        }
+      ],
+      "text_sha256": "84d46a4fc3b8decbd7d11488d6c8977cebd1afac0c11ae5aab82e58cef3dfd45"
+    },
+    "N0018": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 440,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 290
+        },
+        {
+          "end": 431,
+          "flags": "assistant_draft_not_gold;quranic_wording_may_match_hadith_corpus",
+          "label": "quranic_wording",
+          "note": "Source presents this as a Quranic citation; separately review any intended Hadith quotation.",
+          "start": 392
+        }
+      ],
+      "text_sha256": "673ded9a27327004d5fb0cc3fab2e0a2791d2d9b1e50bf3195bbf1e9a37b81d4"
+    },
+    "N0019": {
+      "case_label": "uncertain",
+      "proposals": [
+        {
+          "end": 337,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "uncertain",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 193
+        }
+      ],
+      "text_sha256": "ba1f63a55452dabcc2a9ceee3ea62d420ce23211a55547761ed6ddc2e89f7d4b"
+    },
+    "N0020": {
+      "case_label": "contains_quotation",
+      "proposals": [
+        {
+          "end": 333,
+          "flags": "assistant_draft_not_gold;source_attribution_and_boundaries_unreviewed",
+          "label": "intended_quotation",
+          "note": "Input-first draft from source wording, before detector execution; attribution is not authentication. Out-of-corpus status remains unverified.",
+          "start": 273
+        }
+      ],
+      "text_sha256": "9162df3d3e88b6aa2be71cdf19026b6bef8ed5badd872fd1a10d45a45a2a2240"
+    }
+  },
+  "status": "provisional_input_first_assistant_drafts",
+  "version": 1
+}
