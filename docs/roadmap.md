@@ -23,7 +23,7 @@ traces with complete supporting occurrences. That milestone retained resource an
 normalization version 1; the later MARISA integration below changes only the index to v2.
 See [runtime behavior](fuzzy-runtime.md) and [Phase 4B validation](phase4b-validation.md).
 Phase 5A is accepted; Phase 5B implements annotation. The approved 55-input
-Phase 6 technical pilot is implemented and awaiting maintainer review. The full intent
+Phase 6 technical pilot is complete and approved by the maintainer. The full intent
 review is optional research, not a required milestone backlog.
 
 Before Phase 5, the maintainer requested a review of maintained libraries for the
@@ -79,7 +79,7 @@ See [production validation](marisa-production.md) and the Phase 5 review reports
 | 3. Exact baseline | Benchmark indexes, select from measurements, build artifacts; exact/partial matching, multiple passages, reference completeness and overlap selection. | Compare to exhaustive matching on fixtures and full-corpus sampled queries; prevent fabricated cross-record extensions. | Index decision report and exact-match behavior. `perf: benchmark candidate indexes`; `feat: implement exact quotation detection`. |
 | 4. Fuzzy matching | Bounded ordered alignment for character edits and internal source omissions, both simultaneously; retrieval robust to corrupted seeds. | Budget boundaries, combined errors/omissions, repeated words, order violations, retrieval completeness and adversarial common phrases. | Error accounting and measured limits. `feat: add spelling-error tolerance`; `feat: add omitted-word alignment`. |
 | 5. Public API | Typed results, reusable configuration, serialization, lookup, errors and safe HTML annotation. Minimal internal APIs may appear earlier. | API contracts, independent instances, repeated calls, JSON round trips, offset slicing, HTML escaping and determinism. | Working examples and API docs. `feat: finalize public detection API`; `feat: add safe HTML annotation`. |
-| 6. Technical quality pilot | Freeze 55 reused inputs in four groups, including all 20 commentary paragraphs. Inspect textual correspondence and boundaries; preserve old research and judgments. | Controlled positive recovery, separate prose/commentary alerts and reviewed sample errors; reuse prior benchmarks. No deployment-wide precision/recall. | [55-input handoff](phase6-pilot-55.md): 191 pairs, 382 judgments, 13 zero-alert acknowledgements; six answers migrated verbatim. Human-reviewed scores await review. No production changes. |
+| 6. Technical quality pilot | Complete and approved: 55 reused inputs in four groups, including all 20 commentary paragraphs. Preserved research and judgments. | Controlled positive recovery, separate prose/commentary alerts and reviewed sample errors; reused prior benchmarks. No deployment-wide precision/recall. | [Final evaluation](phase6-evaluation.md): 191/191 correspondence and boundary pairs accepted, 382 judgments, 13 acknowledgements; no production changes. |
 | 7. Release | Bundle approved resources; clean installation and offline validation; prepare initial release process. | Wheel/sdist rebuilds, supported Python versions, network-disabled detection, no runtime rebuild or download, resource integrity and format compatibility. | Installation, attribution, release notes and checklist. `build: bundle validated runtime artifacts`; `docs: prepare initial release`. |
 
 ## Index benchmark (Phase 3)
@@ -201,6 +201,21 @@ acknowledged. The [final evaluation](phase6-evaluation.md) reports all six setti
 known-target recovery and descriptive natural-text alerts. Frozen evidence and
 existing annotations remain unchanged. No historical benchmark was rerun.
 
-Stop for maintainer milestone review before Phase 7. Prepared
+The maintainer approved Phase 6 and authorized Phase 7 below. Prepared
 [release-description wording](phase6-release-evaluation.md) is available for later use.
-Production changes, Phase 7, commits, pushes and releases remain separately gated.
+Further production changes, commits, pushes and releases remain separately gated.
+
+## Phase 7 bundled package — implementation and readiness review
+
+Phase 6 is accepted with all 382 technical judgments complete; its artifacts remain
+unchanged. The maintainer approved Phase 7 implementation: one bundled Bukhari/Muslim
+corpus and prebuilt MARISA v2 index, optional resource directories, offline staging,
+self-contained wheel/sdist, a manual non-publishing readiness workflow and a
+professional README draft with verified Arabic examples and qualified evaluation.
+
+Matching algorithms, defaults, source records, normalization and dependencies remain
+unchanged. Generated bundles remain outside Git. Ordinary CI uses synthetic resources;
+actual candidate checks cover Linux/Windows and Python 3.11–3.14. See
+[release readiness](release-readiness.md) and [verification](phase7-validation.md).
+Stop for review after candidate validation. Commits, pushes, release tags and publication
+require separate instructions; no publishing workflow is introduced.

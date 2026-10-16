@@ -12,9 +12,13 @@ uv run ruff check .
 uv run ruff format --check .
 uv run mypy src/hadith_detector
 uv run pytest
-uv build --no-sources
-uv run twine check dist/*
 ```
+
+Default resource use and production builds now require offline staging of the approved
+bundle. Packaging tests prepare synthetic bundles in isolated source trees, so normal
+CI does not fetch the corpus. For real wheel/sdist builds, stage verified resources
+first and follow [release readiness](docs/release-readiness.md). Its manual workflow
+tests actual bundled candidates on both Linux and Windows, Python 3.11–3.14.
 
 In PowerShell, if wildcard expansion for twine is unavailable, use
 `Get-ChildItem dist -File | ForEach-Object { uv run twine check $_.FullName }`.

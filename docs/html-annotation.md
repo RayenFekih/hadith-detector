@@ -13,14 +13,15 @@ text = "مثال: إنما الأعمال بالنياث وإنما لكل ام�
 html = detector.annotate(text)
 strict_html = detector.annotate(text, max_errors=0)
 
-# Reuse the single convenience cache; index_dir remains required until Phase 7.
+# Reuse the single convenience cache with an explicit resource directory.
 assert annotate(text, index_dir=detector.index_dir, config=detector.config) == html
 ```
 
 The instance signature is
 `annotate(text, *, format="html", min_match_words=None, max_errors=None, max_missing_words=None)`.
-The top-level function adds required keyword-only `index_dir` and optional
+The top-level function adds optional keyword-only `index_dir=None` and
 `config=None`, following [public configuration precedence](public-api.md).
+Omitted/`None` directories use the installed bundled corpus.
 Only the exact format string `"html"` is supported. Non-string text/format raises
 `TypeError`; unsupported formats and invalid settings raise `ValueError`.
 Settings are validated for empty/no-match inputs. The empty fragment is `""`;

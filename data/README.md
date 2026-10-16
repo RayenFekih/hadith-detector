@@ -1,11 +1,14 @@
 # Data and artifact policy
 
-The planned corpus is [QuranLab Hadith](https://huggingface.co/datasets/quranlab/hadith),
+The bundled corpus is [QuranLab Hadith](https://huggingface.co/datasets/quranlab/hadith),
 using only `bukhari-ar` and `muslim-ar`. Local inspection reports 7,580 and 7,360
 records respectively; these are observations, not hardcoded integrity guarantees.
 Duplicate text must retain every original identity, and reference URLs may be null.
 
-No runtime corpus is bundled in Phase 2. Existing local CSVs, archives, inspection
+Phase 7 stages the approved runtime corpus and MARISA v2 index into ignored package
+data for wheel/sdist builds. See [release readiness](../docs/release-readiness.md) and
+the [preserved redistribution record](../tools/bundle-notices/PROVENANCE.md).
+No runtime corpus was bundled in Phase 2. Existing local CSVs, archives, inspection
 reports, notebooks, and evaluation files remain ignored and untouched. They must
 not be silently treated as the pinned source for a reproducible build.
 
@@ -42,9 +45,10 @@ are retained with the ignored source snapshot. See
 
 Keep source records, preprocessing tools, derived artifacts, and runtime resources
 separate. Preserve all original fields and source text without normalization edits.
-Version record schema, normalization and index format independently. Phase 3B uses
-index format 1; generated compact runtime directories remain ignored and unbundled
-until Phase 7. See [runtime resources](../docs/runtime-index.md).
+Version record schema, normalization and index format independently. Phase 3B used
+index format 1; MARISA production uses v2. Generated directories remain ignored;
+Phase 7 includes only approved runtime resources and notices in distributions.
+See [runtime resources](../docs/runtime-index.md).
 Pin upstream
 and preprocessing revisions and record configuration and checksums.
 Do not introduce LFS or DVC or commit large artifacts without discussing tradeoffs.

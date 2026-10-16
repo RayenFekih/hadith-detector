@@ -1,8 +1,10 @@
 # Public API (Phases 5A and 5B)
 
-The target is one combined Sahih Bukhari/Sahih Muslim corpus. Until Phase 7,
-every constructor and convenience call requires an explicit local `index_dir`.
-Nothing is downloaded, rebuilt or bundled by this milestone. HTML annotation is available in Phase 5B; see [annotation behavior](html-annotation.md).
+The package contains one combined Sahih Bukhari/Sahih Muslim corpus with prebuilt
+MARISA v2 resources. Constructors and convenience functions use it when `index_dir`
+is omitted or `None`; explicit directories retain their behavior and never fall
+back silently. Nothing is downloaded or rebuilt at runtime. Standard unpacked pip
+installations are supported. See [annotation behavior](html-annotation.md).
 
 ## Construction and configuration
 
@@ -10,7 +12,6 @@ Nothing is downloaded, rebuilt or bundled by this milestone. HTML annotation is 
 from hadith_detector import DetectorConfig, HadithDetector
 
 detector = HadithDetector(
-    "data/runtime-index-v2-a",
     config=DetectorConfig(min_match_words=5, max_errors=1, max_missing_words=1),
 )
 assert detector.index_dir.is_absolute()  # read-only resolved pathlib.Path
@@ -22,7 +23,7 @@ strict = detector.detect(
 )
 ```
 
-`HadithDetector.from_directory(index_dir, config=None)` remains supported.
+`HadithDetector.from_directory(index_dir, config=None)` requires an explicit directory.
 Construction eagerly validates and loads MARISA v2 resources once. `config`
 is a read-only frozen `DetectorConfig`. Defaults are five words and zero edits
 and omissions. Overrides are keyword-only and never change instance defaults:
@@ -36,6 +37,8 @@ constructor now takes a directory; callers using `from_directory()` need no
 change. Explicit `None`, formerly invalid for detection settings, now inherits.
 Python 3.11–3.14, index format 2, normalization version 1, matching rules and
 runtime dependency requirements are unchanged.
+Phase 7 additionally makes resource selection optional: constructor and convenience
+`index_dir=None` means the bundled corpus. `from_directory()` still requires a directory.
 
 ## Convenience calls and lifetime
 
@@ -44,11 +47,10 @@ from hadith_detector import clear_cache, detect, get_hadith
 
 matches = detect(
     "إنما الأعمال بالنيات وإنما لكل امرئ ما نوى",
-    index_dir="data/runtime-index-v2-a",
     config=DetectorConfig(max_errors=1),
     max_errors=0,
 )
-record = get_hadith("bukhari:1", index_dir="data/runtime-index-v2-a")
+record = get_hadith("bukhari:1")
 clear_cache()
 ```
 

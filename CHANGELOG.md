@@ -7,11 +7,17 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Fixed
 
+- Release-readiness probes execute the current README examples without depending
+  on variable names from an earlier draft; documentation links also work on PyPI.
 - Clean-wheel CI checks now install from hash-verified locked dependency wheels,
   without relying on uv registry metadata left in a developer's cache.
 
 ### Added
 
+- One bundled Bukhari/Muslim corpus with prebuilt MARISA v2 resources, optional
+  `index_dir` defaults, offline staging and fail-closed distribution builds (Phase 7).
+- Manual, non-publishing release-readiness workflow for actual bundled candidates
+  on Windows/Linux and Python 3.11–3.14, plus a professional README draft.
 - Finalized the 55-input Phase 6 technical pilot with 382 completed human judgments,
   reproducible offline scoring, evidence validation and separate release-description wording.
 - Expanded the technical pilot to 55 frozen inputs, including all 20 commentary
