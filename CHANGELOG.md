@@ -12,6 +12,19 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Finalized the 55-input Phase 6 technical pilot with 382 completed human judgments,
+  reproducible offline scoring, evidence validation and separate release-description wording.
+- Expanded the technical pilot to 55 frozen inputs, including all 20 commentary
+  paragraphs, with four-group reporting and explicitly approved, lossless review migration.
+- Frozen 50-input technical pilot with source-linked comparisons, 62 deduplicated
+  passage pairs and separate automatic review progress; full intent research remains optional.
+- Interactive Phase 6 ipywidgets review notebook with exact-offset Arabic previews,
+  lazy supporting evidence and atomic, resumable CSV progress saves.
+- Repository-only Phase 6 input freezing, six-configuration evidence capture,
+  reversible review CSV, candidate-unwanted-alert inventory and offline replay.
+- Pinned natural-source provenance and input-first draft spans. Original intent labels
+  remain provisional; the smaller technical pilot now has approved correspondence review.
+
 - Instance and convenience `annotate()` methods returning safely escaped HTML
   fragments with fixed marks, original offsets and best supporting costs (Phase 5B).
 - Text/offset round trips, injection, exact/fuzzy parity and annotation concurrency checks.

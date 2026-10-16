@@ -19,16 +19,19 @@ only in repository tests and benchmarks. No dual runtime backends or acceleratio
 are planned. Review [Phase 4A evidence and the revised proposal](phase4-fuzzy-benchmark.md)
 for the design evidence. The maintainer subsequently authorized Phase 4B implementation:
 the instance API now accepts both budgets, uses RapidFuzz, and returns typed alignment
-traces with complete supporting occurrences. Resource and normalization versions remain 1.
+traces with complete supporting occurrences. That milestone retained resource and
+normalization version 1; the later MARISA integration below changes only the index to v2.
 See [runtime behavior](fuzzy-runtime.md) and [Phase 4B validation](phase4b-validation.md).
-Phase 5 remains pending review and approval.
+Phase 5A is accepted; Phase 5B implements annotation. The approved 55-input
+Phase 6 technical pilot is implemented and awaiting maintainer review. The full intent
+review is optional research, not a required milestone backlog.
 
 Before Phase 5, the maintainer requested a review of maintained libraries for the
 existing phases. See [library reuse review](library-review.md) for candidates and
 compatibility evidence. The requested focused evaluation is recorded in
 [library benchmark results](library-benchmark-results.md), with commands in
-[the protocol](library-benchmark.md). Production adoption remains pending review;
-the experiments do not change runtime dependencies or resource formats.
+[the protocol](library-benchmark.md). The measurements led to the separate MARISA adoption below; other library
+alternatives remain experimental.
 
 The prebuilt MARISA v2 trial is implemented separately in repository tooling.
 See [the historical acceptance report](marisa-trial.md): complete oracle agreement and a
@@ -36,7 +39,7 @@ See [the historical acceptance report](marisa-trial.md): complete oracle agreeme
 and 19% slower first fuzzy calls. The maintainer accepted these one-time costs for
 long-lived instances and approved production v2-only integration. Production now
 requires MARISA 1.4.1 alongside RapidFuzz; integrity checks remain complete.
-See [production validation](marisa-production.md). Phase 5 remains pending.
+See [production validation](marisa-production.md) and the Phase 5 review reports below.
 
 ## Architectural commitments
 
@@ -76,7 +79,7 @@ See [production validation](marisa-production.md). Phase 5 remains pending.
 | 3. Exact baseline | Benchmark indexes, select from measurements, build artifacts; exact/partial matching, multiple passages, reference completeness and overlap selection. | Compare to exhaustive matching on fixtures and full-corpus sampled queries; prevent fabricated cross-record extensions. | Index decision report and exact-match behavior. `perf: benchmark candidate indexes`; `feat: implement exact quotation detection`. |
 | 4. Fuzzy matching | Bounded ordered alignment for character edits and internal source omissions, both simultaneously; retrieval robust to corrupted seeds. | Budget boundaries, combined errors/omissions, repeated words, order violations, retrieval completeness and adversarial common phrases. | Error accounting and measured limits. `feat: add spelling-error tolerance`; `feat: add omitted-word alignment`. |
 | 5. Public API | Typed results, reusable configuration, serialization, lookup, errors and safe HTML annotation. Minimal internal APIs may appear earlier. | API contracts, independent instances, repeated calls, JSON round trips, offset slicing, HTML escaping and determinism. | Working examples and API docs. `feat: finalize public detection API`; `feat: add safe HTML annotation`. |
-| 6. Evaluation | Curate provisional cases, verify expected references against full corpus, optimize measured bottlenecks. | Separate candidate recall, passage accuracy, reference completeness, false positives, startup, latency, memory and artifact size. | Evaluation provenance and benchmark report. `test: establish verified evaluation suite`; justified optimization commits. |
+| 6. Technical quality pilot | Freeze 55 reused inputs in four groups, including all 20 commentary paragraphs. Inspect textual correspondence and boundaries; preserve old research and judgments. | Controlled positive recovery, separate prose/commentary alerts and reviewed sample errors; reuse prior benchmarks. No deployment-wide precision/recall. | [55-input handoff](phase6-pilot-55.md): 191 pairs, 382 judgments, 13 zero-alert acknowledgements; six answers migrated verbatim. Human-reviewed scores await review. No production changes. |
 | 7. Release | Bundle approved resources; clean installation and offline validation; prepare initial release process. | Wheel/sdist rebuilds, supported Python versions, network-disabled detection, no runtime rebuild or download, resource integrity and format compatibility. | Installation, attribution, release notes and checklist. `build: bundle validated runtime artifacts`; `docs: prepare initial release`. |
 
 ## Index benchmark (Phase 3)
@@ -153,5 +156,51 @@ Proposed Phase 5A commits, only when requested:
 Phase 5B adds escaped fragments through the existing detector, fixed mark attributes,
 original text/offset preservation and annotation-only NUL/surrogate rejection.
 See the [HTML guide](html-annotation.md) and [review report](phase5b-validation.md).
-Phase 5B stops for verification review;
-Phase 6 has not begun. Algorithms, dependencies and resources remain unchanged.
+Phase 5B stops for verification review. Phase 6 preparation and its review notebook
+have since been implemented, including the approved smaller technical pilot below.
+Algorithms, dependencies and resources remain unchanged.
+
+## Phase 6 technical pilot — evaluation finalized for milestone review
+
+The approved [revised plan](phase6-pilot-plan.md) replaces the required 453-row intent
+review with 55 inputs: 10 existing Phase 6 exact excerpts, 10 existing controlled
+Phase 4 fuzzy queries, the same 15 general Arabic paragraphs and all 20 frozen
+religious commentary paragraphs. Exact quotas are 3/3/2/2; fuzzy types are 4/4/2.
+Phase 6 itself has no controlled mutations, so reusing Phase 4 avoids generating
+another query set. Selection is frozen from source/input metadata, never outcomes.
+
+Review each input and its deduplicated detected spans once, comparing original
+input and source passages for textual correspondence and boundaries only.
+Keep all source identities, occurrences and evidence. Six configurations remain
+compared with `(5,0,0)`; reuse saved outputs and capture only missing selected
+fuzzy/configuration outputs. Do not rerun historical benchmarks or alter defaults.
+
+Report the four groups separately: controlled recovery with explicit denominators,
+boundary agreement, configuration differences, descriptive prose/commentary alerts,
+and technical issues found in the reviewed sample. No deployment-wide precision
+or recall, authenticity judgments or intent-based false-positive claims.
+
+The complete 136-input dataset, 453-row CSV, existing annotations, notebook and
+captured evidence remain intact as optional research. Historical
+[preparation evidence](phase6-preparation.md), [review instructions](phase6-review.md)
+and [notebook validation](phase6-notebook-validation.md) describe that workflow.
+New technical judgments must not overwrite or reinterpret intent annotations.
+
+The [implemented handoff](phase6-pilot-55.md) has 55 screens and 191 deduplicated
+pairs: 382 judgments plus 13 zero-alert acknowledgements. All 330 outputs were
+reused (270 original Phase 6, 60 previous pilot), with zero new detector calls.
+Separate progress saves automatically. Three reviewed pairs migrated unchanged;
+S0002's two excluded judgments remain in the old progress, backup and migration
+report. The maintainer explicitly approved activation with that exclusion.
+Original 50-input artifacts and source/tool/notebook backups remain intact.
+No historical benchmark was rerun.
+
+The maintainer completed and authorized scoring of all 382 judgments: 191/191
+correspondence and 191/191 boundary answers are Yes, with 13/13 zero-alert screens
+acknowledged. The [final evaluation](phase6-evaluation.md) reports all six settings,
+known-target recovery and descriptive natural-text alerts. Frozen evidence and
+existing annotations remain unchanged. No historical benchmark was rerun.
+
+Stop for maintainer milestone review before Phase 7. Prepared
+[release-description wording](phase6-release-evaluation.md) is available for later use.
+Production changes, Phase 7, commits, pushes and releases remain separately gated.

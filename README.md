@@ -9,6 +9,11 @@ convenience calls and HTML annotation work with explicit local resources. Charac
 source-word omissions work together. One combined Bukhari/Muslim corpus will be
 bundled in Phase 7; no corpus is bundled or release published yet.
 
+The [Phase 6 technical evaluation](docs/phase6-evaluation.md) records the completed
+55-input pilot and human review. Results are limited to textual correspondence,
+boundaries and controlled-target recovery; they do not establish deployment-wide
+precision/recall or Hadith authenticity.
+
 ## Installation and local resources
 
 Python 3.11–3.14 are supported; development and resource construction use Python 3.14.
@@ -113,3 +118,16 @@ terms, upstream attribution and the maintainer's approval are recorded in
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), the [roadmap](docs/roadmap.md) and
 [changelog](CHANGELOG.md). Each next phase requires review and approval.
+
+## Small technical quality pilot
+
+Phase 6 prepares **55 inputs**: 10 exact excerpts, 10 previously frozen fuzzy
+queries, 15 general Arabic paragraphs and all 20 frozen religious commentary paragraphs. The
+[review notebook](notebooks/phase6_review.ipynb) groups detections per input for
+textual correspondence and boundary checks, saving progress automatically.
+See [pilot instructions and validation](docs/phase6-pilot.md).
+The original 50-input pilot and its saved judgments remain backed up; compatible
+judgments migrated without reinterpretation. The original 136-input / 453-row
+[research review](docs/phase6-review.md) remains optional and unchanged.
+No deployment-wide precision/recall claim is established.
+Production defaults and matching behavior remain unchanged.
