@@ -29,7 +29,7 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - run: uv sync --locked --group benchmark
-      - run: uv run --frozen --group benchmark pytest tests/test_fuzzy_benchmark.py -m "not benchmark"
+      - run: uv run --frozen --group benchmark python -m pytest tests/test_fuzzy_benchmark.py -m "not benchmark"
   benchmark:
     name: Synthetic index benchmark smoke test
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
           python-version: '3.14'
           enable-cache: true
       - run: uv sync --locked --group benchmark
-      - run: uv run --frozen --group benchmark pytest tests/test_exact_benchmark.py tests/test_fuzzy_benchmark.py
+      - run: uv run --frozen --group benchmark python -m pytest tests/test_exact_benchmark.py tests/test_fuzzy_benchmark.py
 
   data:
     name: Synthetic data pipeline (Python 3.14)
@@ -58,7 +58,7 @@ jobs:
           python-version: '3.14'
           enable-cache: true
       - run: uv sync --locked --group data
-      - run: uv run --frozen --group data pytest -m data
+      - run: uv run --frozen --group data python -m pytest -m data
 
   tests:
     name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
@@ -81,7 +81,7 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - run: uv sync --locked
-      - run: uv run --frozen pytest
+      - run: uv run --frozen python -m pytest
 
   quality:
     runs-on: ubuntu-latest

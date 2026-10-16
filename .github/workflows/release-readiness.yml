@@ -69,7 +69,7 @@ jobs:
       - name: Install and exercise both wheels offline
         run: uv run --frozen python -m tools.release_install --artifacts-dir .cache/candidates --output-dir .cache/installed-checks
       - name: Runtime and resource regressions
-        run: uv run --frozen pytest tests/test_bundled.py tests/test_public_api.py tests/test_annotation.py tests/test_detector.py tests/test_fuzzy_detector.py tests/test_marisa_resources.py tests/test_text.py
+        run: uv run --frozen python -m pytest tests/test_bundled.py tests/test_public_api.py tests/test_annotation.py tests/test_detector.py tests/test_fuzzy_detector.py tests/test_marisa_resources.py tests/test_text.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
