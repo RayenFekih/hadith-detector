@@ -10,6 +10,7 @@ import tarfile
 import tomllib
 import zipfile
 from email.parser import BytesParser
+from importlib.metadata import version
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from urllib.request import urlopen
@@ -24,7 +25,16 @@ pytestmark = pytest.mark.packaging
 
 
 def run(*args: str, cwd: Path) -> None:
-    result = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+    result = subprocess.run(
+        args,
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        env={
+            **os.environ,
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_HADITH_DETECTOR": version("hadith-detector"),
+        },
+    )
     assert result.returncode == 0, f"{args!r}\n{result.stdout}\n{result.stderr}"
 
 
@@ -33,8 +43,42 @@ def artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Pat
     uv = shutil.which("uv")
     assert uv is not None, "Install uv to run the documented packaging checks"
     workspace = tmp_path_factory.mktemp("packaging")
+    # Ordinary CI packages a clearly synthetic bundle in an isolated source tree.
+    # The release-readiness workflow separately validates the actual full bundle.
+    project = workspace / "project"
+    project.mkdir()
+    for name in (
+        "README.md",
+        "CONTRIBUTING.md",
+        "CHANGELOG.md",
+        "LICENSE",
+        "pyproject.toml",
+        "MANIFEST.in",
+        "setup.py",
+        "uv.lock",
+    ):
+        shutil.copyfile(ROOT / name, project / name)
+    for name in ("src", "tools", "tests", "docs"):
+        shutil.copytree(
+            ROOT / name,
+            project / name,
+            ignore=shutil.ignore_patterns("_data", "__pycache__", "*.egg-info", ".bundle-*"),
+        )
+    (project / "data").mkdir()
+    shutil.copyfile(ROOT / "data/README.md", project / "data/README.md")
+    from tools.stage_bundle import stage
+
+    from .test_bundled import synthetic_package
+
+    fixture = workspace / "fixture"
+    fixture.mkdir()
+    package, index = synthetic_package(fixture)
+    stage(index, package=package)
+    destination = project / "src/hadith_detector"
+    shutil.copyfile(package / "_bundle.json", destination / "_bundle.json")
+    shutil.copytree(package / "_data", destination / "_data")
     output = workspace / "dist"
-    run(uv, "build", "--no-sources", "--out-dir", str(output), cwd=ROOT)
+    run(uv, "build", "--no-sources", "--out-dir", str(output), cwd=project)
     wheel = next(output.glob("*.whl"))
     sdist = next(output.glob("*.tar.gz"))
     unpacked = workspace / "source"
@@ -45,6 +89,7 @@ def artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Pat
     assert not (source / ".git").exists()
     rebuilt = workspace / "rebuilt"
     run(uv, "build", "--wheel", "--no-sources", "--out-dir", str(rebuilt), cwd=source)
+    run(sys.executable, "-m", "twine", "check", str(wheel), str(sdist), cwd=workspace)
     return wheel, sdist, next(rebuilt.glob("*.whl"))
 
 
@@ -109,6 +154,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
             "_resources",
             "_fuzzy",
             "_marisa",
+            "_bundled",
         ):
             assert f"hadith_detector/{module}.py" in names
         assert metadata["Name"] == "hadith-detector"
@@ -122,7 +168,11 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
-        assert not any(n.endswith((".jsonl", ".parquet", ".bin", ".marisa")) for n in names)
+        bundle = json.loads(archive.read("hadith_detector/_bundle.json"))
+        assert bundle["counts"]["records"] == 2  # never ship the full corpus in ordinary CI
+        for name in (*bundle["artifacts"], "manifest.json", "bundle.json"):
+            assert "hadith_detector/_data/" + name in names
+        assert not any(n.endswith(".parquet") for n in names)
         assert not any("fuzzy_benchmark" in n for n in names)
     with zipfile.ZipFile(rebuilt) as archive:
         rebuilt_metadata = BytesParser().parsebytes(
@@ -153,7 +203,10 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         }
         assert all(not forbidden.intersection(Path(n).parts) for n in relative)
         assert all(n in {"data", "data/README.md"} for n in relative if n.startswith("data"))
-        assert not any(n.endswith((".csv", ".ipynb", ".pyc", ".zip")) for n in relative)
+        assert not any(n.endswith((".ipynb", ".pyc", ".zip")) for n in relative)
+        assert all(
+            "bundle-notices/" in n or "/_data/notices/" in n for n in relative if n.endswith(".csv")
+        )
         assert not {"src/config.py", "src/logger.py", "main.py"}.intersection(relative)
 
 
@@ -214,6 +267,9 @@ assert hadith_detector.Detection.from_dict(json.loads(json.dumps(result[0].to_di
 assert hadith_detector.detect(result[0].text, index_dir=detector.index_dir,
                              config=hadith_detector.DetectorConfig(max_errors=1)) == result
 assert hadith_detector.get_hadith('fixture:1', index_dir=detector.index_dir).sunnah_url is None
+assert hadith_detector.detect(result[0].text, max_errors=1) == result
+assert hadith_detector.HadithDetector().detect(result[0].text, max_errors=1) == result
+assert hadith_detector.get_hadith('fixture:1').sunnah_url is None
 from html.parser import HTMLParser
 class Text(HTMLParser):
     def __init__(self, html):

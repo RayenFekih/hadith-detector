@@ -1,8 +1,14 @@
 include README.md CONTRIBUTING.md CHANGELOG.md LICENSE pyproject.toml
+include setup.py
+include src/hadith_detector/_bundle.json
+recursive-include src/hadith_detector/_data *
 recursive-include src/hadith_detector *.py py.typed
 recursive-include tests *.py
 recursive-include docs *.md
+# This report records final archive checksums; keep it outside the archives it describes.
+exclude docs/phase7-validation.md
 recursive-include tools *.py *.json
+recursive-include tools/bundle-notices *.md *.txt *.csv
 include uv.lock
 include data/README.md
 prune .github

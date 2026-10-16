@@ -1,4 +1,4 @@
-"""Offline Arabic Hadith detection using explicitly supplied local resources."""
+"""Offline Arabic Hadith detection with bundled or explicitly supplied resources."""
 
 from importlib.metadata import version
 

@@ -1,4 +1,4 @@
-"""Reusable offline exact/fuzzy detection using explicitly supplied compact resources."""
+"""Reusable offline exact/fuzzy detection using bundled or explicit compact resources."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from pathlib import Path
 from threading import RLock
 
 from ._annotation import render, validate
+from ._bundled import directory
 from ._fuzzy import FuzzyMatcher
 from ._resources import MAX_U32, Resources, Sequence, query_sequence
 from ._text import tokenize
@@ -22,13 +23,26 @@ class HadithDetector:
 
     __slots__ = ("_resources", "_fuzzy", "_config", "_index_dir", "_lock")
 
-    def __init__(self, index_dir: str | Path, config: DetectorConfig | None = None) -> None:
+    def __init__(
+        self, index_dir: str | Path | None = None, config: DetectorConfig | None = None
+    ) -> None:
         if config is not None and not isinstance(config, DetectorConfig):
             raise TypeError("config must be a DetectorConfig or None")
         self._config = config if config is not None else DetectorConfig()
-        self._index_dir = Path(index_dir).resolve()
+        self._index_dir = directory(index_dir)
         self._lock = RLock()
-        self._resources = Resources.load(self._index_dir)
+        try:
+            self._resources = Resources.load(self._index_dir)
+        except (ValueError, OSError) as exc:
+            if index_dir is not None:
+                raise
+            message = (
+                "Bundled Hadith resources failed validation; reinstall the complete "
+                f"hadith-detector distribution. Original error: {exc}"
+            )
+            if isinstance(exc, OSError):
+                raise OSError(message) from exc
+            raise ValueError(message) from exc
         self._fuzzy: FuzzyMatcher | None = None
 
     @property
@@ -46,6 +60,8 @@ class HadithDetector:
         cls, index_dir: str | Path, config: DetectorConfig | None = None
     ) -> HadithDetector:
         """Validate/load local resources without downloading or rebuilding."""
+        if index_dir is None:
+            raise TypeError("from_directory requires an explicit directory")
         return cls(index_dir, config)
 
     def get_hadith(self, hadith_key: str) -> HadithRecord:

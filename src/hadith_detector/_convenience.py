@@ -4,6 +4,7 @@ from pathlib import Path
 from threading import RLock
 
 from ._annotation import validate
+from ._bundled import directory
 from .config import DetectorConfig
 from .detector import HadithDetector
 from .models import Detection, HadithRecord
@@ -12,13 +13,13 @@ _lock = RLock()
 _entry: tuple[Path, HadithDetector] | None = None
 
 
-def _detector(index_dir: str | Path) -> HadithDetector:
+def _detector(index_dir: str | Path | None) -> HadithDetector:
     global _entry
-    directory = Path(index_dir).resolve()
+    resolved = directory(index_dir)
     with _lock:
-        if _entry is None or _entry[0] != directory:
-            detector = HadithDetector(directory)
-            _entry = directory, detector
+        if _entry is None or _entry[0] != resolved:
+            detector = HadithDetector(index_dir)
+            _entry = resolved, detector
         return _entry[1]
 
 
@@ -32,13 +33,13 @@ def clear_cache() -> None:
 def detect(
     text: str,
     *,
-    index_dir: str | Path,
+    index_dir: str | Path | None = None,
     config: DetectorConfig | None = None,
     min_match_words: int | None = None,
     max_errors: int | None = None,
     max_missing_words: int | None = None,
 ) -> list[Detection]:
-    """Detect using cached local resources and independent per-call defaults."""
+    """Detect using cached bundled/local resources and independent per-call defaults."""
     if config is not None and not isinstance(config, DetectorConfig):
         raise TypeError("config must be a DetectorConfig or None")
     effective = (config if config is not None else DetectorConfig())._override(
@@ -55,7 +56,7 @@ def detect(
 def annotate(
     text: str,
     *,
-    index_dir: str | Path,
+    index_dir: str | Path | None = None,
     format: str = "html",
     config: DetectorConfig | None = None,
     min_match_words: int | None = None,
@@ -78,6 +79,6 @@ def annotate(
     )
 
 
-def get_hadith(hadith_key: str, *, index_dir: str | Path) -> HadithRecord:
+def get_hadith(hadith_key: str, *, index_dir: str | Path | None = None) -> HadithRecord:
     """Retrieve an isolated source snapshot using the single cached detector."""
     return _detector(index_dir).get_hadith(hadith_key)

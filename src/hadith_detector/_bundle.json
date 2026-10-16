@@ -1,0 +1,45 @@
+{
+  "artifacts": {
+    "record-offsets.bin": "5ff1228d1d7cc82df5baa6853b510dca8d0897e165217d4df9bf3a26f16f32d1",
+    "records.jsonl": "9ec8e19aaab80ffbc01aa162122060099bc0a5de3841b544b4afa1c381414246",
+    "tokens.bin": "3488e5e47e5a91d42c2f84ba14560cf673e134081aea52a6ab28f08fdda2d317",
+    "trigram-offsets.bin": "c7edf613d74f00c806eafea7f0a6fd3f7dcd916c094f2c210d88b8380d6cbf6b",
+    "trigram-postings.bin": "0a246cc840d7fad97945ca2164545c72ad59a35245d87cb6aa7359fd6bea21cf",
+    "trigrams.marisa": "9bb9eae9fc858f7a5ed9a6675035f407b77f9c561e9cfd441cbcf0b14b49518e",
+    "unigram-offsets.bin": "3e8f5dc282137fc6f418f6bc33e2b0dbe987d860b4ffc5761944432a5f3f5d01",
+    "unigram-postings.bin": "752a095ec3f92dddbc90a751c6ed295f5b363035f76ba6479098d13750381b8a",
+    "vocabulary.marisa": "faf3d4b7d5d9952e5ea3823d305d29e46d4fcc1a6f52751cdada81a529c655cc"
+  },
+  "counts": {
+    "records": 14940,
+    "tokens": 1039600,
+    "trigram_keys": 382866,
+    "trigram_postings": 1009649,
+    "vocabulary": 40949
+  },
+  "notices": {
+    "LICENSES.md": "211ab9b99234f8b4c99f4e295cd29f0524d1a8508b10916c2ce84aa28ee4fde3",
+    "PROVENANCE.md": "f565245adb555fbe5b4d4a838369fd3c50e37de3f0302c5a0291c6a36c9517c7",
+    "README.md": "fc207de3c37457f4cd02075cdd1f76562905f7b5efe7cdaf3c0e2ae0a51bc9fc",
+    "SOURCES.md": "a395c79251f54b1b780a475c32480f968d277b71a04017af18227df3e9545e53",
+    "UPSTREAM-UNLICENSE.txt": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
+    "collections.csv": "806aef24f330464c3b9bb0f2526ed1f962d12c6edecc8d0047633c324189f11b",
+    "configs.csv": "5c397a92a7449a568104ff2e6d6e60bdea68d7d0f19556591871be38693c210c"
+  },
+  "source_dataset": {
+    "configurations": [
+      "bukhari-ar",
+      "muslim-ar"
+    ],
+    "repository": "quranlab/hadith",
+    "revision": "cc6972dae1f46f5f5e2b65e877d24c4539bc4391"
+  },
+  "version": 1,
+  "versions": {
+    "index": 2,
+    "manifest": 1,
+    "normalization": 1,
+    "records": 1,
+    "tokens": 1
+  }
+}

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hadith-detector"
 dynamic = ["version"]
-description = "Offline Arabic Hadith quotation detection with explicit local resources"
+description = "Deterministic offline Arabic textual matching against Sahih Bukhari and Sahih Muslim"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -37,9 +37,10 @@ review = ["ipywidgets>=8,<9", "jupyterlab>=4,<5", "ipykernel>=6"]
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["hadith_detector*"]
+namespaces = false
 
 [tool.setuptools.package-data]
-hadith_detector = ["py.typed"]
+hadith_detector = ["py.typed", "_bundle.json", "_data/*", "_data/notices/*"]
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
@@ -47,7 +48,7 @@ version_scheme = "guess-next-dev"
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-extend-exclude = ["notebooks", "others", "data"]
+extend-exclude = ["notebooks", "others", "data", "tools/bundle-notices"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -56,6 +57,7 @@ select = ["E", "F", "I", "UP", "B"]
 known-first-party = ["hadith_detector"]
 
 [tool.mypy]
+exclude = ["^src/hadith_detector/_data/"]
 python_version = "3.11"
 strict = true
 files = ["src/hadith_detector"]

@@ -6,3 +6,5 @@
 *.csv text eol=lf
 *.json text eol=lf
 *.lock text eol=lf
+# Preserve checksum-pinned upstream notices byte-for-byte on every platform.
+tools/bundle-notices/** -text

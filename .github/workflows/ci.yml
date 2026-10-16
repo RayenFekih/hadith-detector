@@ -98,5 +98,5 @@ jobs:
       - run: uv run --frozen ruff check .
       - run: uv run --frozen ruff format --check .
       - run: uv run --frozen mypy src/hadith_detector
-      - run: uv build --no-sources
-      - run: uv run --frozen twine check dist/*
+      # Tests build isolated synthetic bundles. Full production builds belong to
+      # the manually triggered, non-publishing release-readiness workflow.

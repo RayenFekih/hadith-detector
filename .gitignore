@@ -53,6 +53,7 @@ build/
 docker-compose.override.yml
 
 # Data
+src/hadith_detector/_data/
 data/*
 !data/.gitkeep
 !data/README.md
