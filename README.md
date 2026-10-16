@@ -1,133 +1,146 @@
 # Hadith Detector
 
-An offline Python library for finding Arabic Hadith quotations and returning
-independently supporting source references.
+**Detect Arabic Hadith text and find its sources. Offline, in Python.**
 
-**Status: public API and safe HTML annotation (Phase 5B).** Exact and fuzzy ordered matching,
-multiple passages, configuration, source lookup, dictionary round trips and
-convenience calls and HTML annotation work with explicit local resources. Character edits and internal
-source-word omissions work together. One combined Bukhari/Muslim corpus will be
-bundled in Phase 7; no corpus is bundled or release published yet.
+[![Python 3.11–3.14](https://img.shields.io/badge/Python-3.11%E2%80%933.14-3776AB?logo=python&logoColor=white)](https://github.com/RayenFekih/hadith-detector/blob/main/pyproject.toml)
+[![CI](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml)
+[![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](https://github.com/RayenFekih/hadith-detector/blob/main/LICENSE)
 
-The [Phase 6 technical evaluation](docs/phase6-evaluation.md) records the completed
-55-input pilot and human review. Results are limited to textual correspondence,
-boundaries and controlled-target recovery; they do not establish deployment-wide
-precision/recall or Hadith authenticity.
+`hadith-detector` is a Python library that finds Arabic passages matching Hadith texts and returns their supporting sources. It works with short quotations or longer documents, supports exact and configurable fuzzy matching, and runs locally without an API key or an internet connection after installation.
 
-## Installation and local resources
+The current bundled corpus covers **Sahih al-Bukhari and Sahih Muslim**. Support for additional Hadith collections is planned.
 
-Python 3.11–3.14 are supported; development and resource construction use Python 3.14.
-RapidFuzz (`>=3.14.6,<4`) is the required production character-distance dependency.
-MARISA (`marisa-trie==1.4.1`) supplies the prebuilt vocabulary and trigram lookups.
-Install dependencies before offline use. Detection never needs network access.
+## Installation
 
-Repository-only Phase 4A tools compare complete fuzzy retrieval strategies and
-pure-Python versus RapidFuzz bounded word distance. Python distance implementations
-remain repository-only correctness tools. See [fuzzy benchmark usage](docs/fuzzy-benchmark.md)
-and [the measurements and Phase 4B recommendation](docs/phase4-fuzzy-benchmark.md).
-
-```sh
-uv sync --locked
+```bash
+pip install hadith-detector
 ```
 
-Prepare the pinned corpus using the separate `data` dependency group and the
-[data-preparation guide](docs/data-preparation.md), then build its index offline:
+Or with [uv](https://docs.astral.sh/uv/):
 
-```sh
-uv run python -m tools.build_index --corpus-dir data/prepared-corpus --output-dir data/runtime-index
+```bash
+uv add hadith-detector
 ```
 
-Choose a new output directory for each build. Downloads and generated resources
-stay outside Git. Research notebooks use separate exploratory environments.
-Current builds produce index format v2. Existing v1 directories are rejected;
-rebuild from the prepared corpus into a new directory and preserve the old files.
+Requires **Python 3.11–3.14**. The package includes the Hadith texts and a prebuilt search index, so there is no separate corpus download or index-building step. Detection works offline after installation.
 
-## Working API
+## Quick start
+
+Detect a Hadith quotation and highlight it in the original Arabic text:
 
 ```python
-from hadith_detector import Detection, DetectorConfig, HadithDetector
+from hadith_detector import detect, annotate
 
-detector = HadithDetector("data/runtime-index", config=DetectorConfig())
-text = "إنما الأعمال بالنيات"
-matches = detector.detect(text, min_match_words=3)
-# Optional budgets, independently applied to each supporting occurrence:
-tolerant_matches = detector.detect(text, min_match_words=3, max_errors=1, max_missing_words=1)
-for match in matches:
-    assert text[match.start : match.end] == match.text
-    for reference in match.references:
-        record = detector.get_hadith(reference.record.hadith_key)
-        for occurrence in reference.occurrences:
-            assert record.text[occurrence.start : occurrence.end] == occurrence.text
-    serializable = match.to_dict()
-    assert Detection.from_dict(serializable) == match
+text = "قال رسول الله ﷺ: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى."
+
+matches = detect(text)
+print(matches[0].text)
+print(matches[0].references[0].record.hadith_key)
+
+html = annotate(text)
+print(html)  # Escaped HTML fragment with <mark> around detected passages
 ```
 
-The default minimum is five normalized input words; any positive integer is allowed.
-Exact means equality after shared Arabic normalization, with preserved word order.
-Punctuation separates words; numbers, non-Arabic words and damaged characters block
-matches. Written words remain intact. Offsets are Python string indices with exclusive
-ends. All source identities and all supporting occurrences are returned.
+`detect()` returns matched passages, their original character offsets, and supporting Hadith references. A passage may have multiple supporting references. `annotate()` returns an HTML fragment that highlights matches without changing the original Arabic wording.
 
-Loading validates resources once; subsequent calls reuse them. Loading and detection
-never download, rebuild or write resources. See the [API and resource guide](docs/runtime-index.md)
-and [Phase 3B validation report](docs/phase3b-validation.md).
-The approved MARISA evaluation saved about 78 MiB of steady memory at the cost of
-about 1.34 seconds additional validated initialization. Reuse long-lived instances.
-Calls on the same instance execute sequentially under a reentrant lock. Independent
-instances retain independent caches. See [production validation](docs/marisa-production.md)
-and the [public API guide](docs/public-api.md) for configuration, serialization and lifetime.
-See [Phase 5A verification](docs/phase5a-validation.md) for review evidence.
+## Features
+
+- **Exact Arabic text matching**, with normalization of supported Arabic letter forms and diacritics.
+- **Optional fuzzy matching** for limited spelling differences and omitted words from the source.
+- **Source references** with complete original records, occurrences, offsets, and alignment details.
+- **Multiple detections** within the same paragraph or document.
+- **HTML highlighting** of detected passages using `annotate()`.
+- **Offline and deterministic** operation with a bundled index; no LLM or external service required.
+
+## Configuration
+
+The default settings are intentionally strict:
+
+| Parameter | Default | What it controls |
+| --- | ---: | --- |
+| `min_match_words` | `5` | Minimum number of matched input words. Lower values also detect more short, common expressions; higher values can miss short quotations. |
+| `max_errors` | `0` | Total number of character edits allowed across the matched words. |
+| `max_missing_words` | `0` | Number of internal words in the source passage that may be absent from the input. |
 
 ```python
-from hadith_detector import clear_cache, detect, get_hadith
+from hadith_detector import DetectorConfig, HadithDetector
 
-matches = detect(text, index_dir="data/runtime-index", min_match_words=3)
-record = get_hadith("bukhari:1", index_dir="data/runtime-index")
-clear_cache()
+detector = HadithDetector(
+    config=DetectorConfig(
+        min_match_words=5,
+        max_errors=1,
+        max_missing_words=1,
+    )
+)
+
+matches = detector.detect("إنما الأعمال بالنياث وإنما لكل امرئ ما نوى")
+
+# Override the settings for one call without changing the configuration.
+exact_matches = detector.detect(
+    "إنما الأعمال بالنيات وإنما لكل امرئ ما نوى", max_errors=0, max_missing_words=0
+)
 ```
 
-Convenience calls reuse a single cached detector. Omitted/`None` settings inherit
-configuration; explicit zero overrides its error or omission budget. `index_dir`
-is required for now. Run the [three repository examples](examples/public_api.py) with
-`uv run python examples/public_api.py data/runtime-index-v2-a`.
+For long Arabic documents, consider a higher `min_match_words` if short incidental matches create too much noise. Enable fuzzy budgets only when your input may contain spelling variations or source-word omissions. Broader settings can increase both detections and processing time. There is no universally best configuration; test the trade-offs on your own texts.
+
+## More usage examples
+
+**Retrieve a complete source record**
+
+```python
+from hadith_detector import get_hadith
+
+record = get_hadith("bukhari:1")
+print(record.text)
+```
+
+**Highlight matches in plain text**
 
 ```python
 from hadith_detector import annotate
 
-html = annotate(text, index_dir="data/runtime-index", min_match_words=3, max_errors=1)
+html = annotate("ورد في النص: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى")
 ```
 
-Annotation escapes plain input text and highlights the original detected spans.
-It returns an HTML fragment with fixed `<mark>` elements; selection and offsets
-follow detection unchanged. See [the HTML guide](docs/html-annotation.md) for
-escaping, original whitespace display and annotation-only character restrictions.
-[Phase 5B verification](docs/phase5b-validation.md) records review evidence.
+`annotate()` produces an escaped HTML fragment with matched passages wrapped in `<mark>` elements. It is designed for plain-text input, not for editing an existing HTML document.
 
-## Limitations and data rights
+## Important notes
 
-Textual support does not independently authenticate a narration. Common chains and
-embedded Quranic passages can match corpus text. There is no semantic matching,
-Matn/Isnad extraction, mode parameter or inferred expansion of abbreviated narrations.
-The approved corpus contains 14,940 complete Bukhari and Muslim source records.
-Existing evaluation material remains provisional; oracle agreement verifies algorithmic
-behavior rather than real-world authentication or detection accuracy.
+- **Generic phrases can trigger incidental matches.** For example, a phrase such as `هو عبد الله` may also appear in Hadith records even when it occurs in an unrelated article. Likewise, narration formulas such as `عن النبي صلى الله عليه وسلم قال` may match without being meaningful standalone quotations. Shorter `min_match_words` values increase this risk, and permissive fuzzy budgets can introduce additional matches. **Tune `min_match_words`, `max_errors`, and `max_missing_words` for your text and use case**, especially for long documents; increasing the minimum can reduce short incidental matches but may miss genuine short quotations.
+- **A match means textual support, not quotation intent.** Common expressions, honorifics, Quranic wording embedded in narrations, and narrator-chain fragments can also match. Do not automatically treat every detection as a deliberate Hadith quotation.
+- **Review citations and source context.** Before publishing religious content or relying on the returned citation, inspect the original narration, relevant supporting occurrences, and data provenance. The library does not independently authenticate Hadith or interpret their meaning.
+- **No match does not mean no Hadith exists.** Coverage is currently limited to the bundled Sahihayn collection, and configured matching thresholds may exclude short or modified quotations.
+- **The dataset is preserved as supplied.** Source data can include duplicate narration texts, missing URLs, or damaged characters. Check that it meets your application’s accuracy and provenance requirements.
 
-Code is [MIT licensed](LICENSE); dataset rights are separate. Pinned configuration
-terms, upstream attribution and the maintainer's approval are recorded in
-[data/README.md](data/README.md). Resources are local artifacts until the packaging milestone.
+## Data
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), the [roadmap](docs/roadmap.md) and
-[changelog](CHANGELOG.md). Each next phase requires review and approval.
+The package currently includes **14,940 Arabic Hadith records**:
 
-## Small technical quality pilot
+| Collection | Records |
+| --- | ---: |
+| Sahih al-Bukhari | 7,580 |
+| Sahih Muslim | 7,360 |
 
-Phase 6 prepares **55 inputs**: 10 exact excerpts, 10 previously frozen fuzzy
-queries, 15 general Arabic paragraphs and all 20 frozen religious commentary paragraphs. The
-[review notebook](notebooks/phase6_review.ipynb) groups detections per input for
-textual correspondence and boundary checks, saving progress automatically.
-See [pilot instructions and validation](docs/phase6-pilot.md).
-The original 50-input pilot and its saved judgments remain backed up; compatible
-judgments migrated without reinterpretation. The original 136-input / 453-row
-[research review](docs/phase6-review.md) remains optional and unchanged.
-No deployment-wide precision/recall claim is established.
-Production defaults and matching behavior remain unchanged.
+The data comes from the [QuranLab Hadith dataset on Hugging Face](https://huggingface.co/datasets/quranlab/hadith), using its `bukhari-ar` and `muslim-ar` configurations. Original Arabic records, source identities, and accompanying metadata are retained. **Additional Hadith books are planned for future versions.**
+
+The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](https://github.com/RayenFekih/hadith-detector/blob/main/tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
+
+## Use cases
+
+- **Arabic documents and articles:** Locate matching Hadith passages inside longer text.
+- **Research and reference lookup:** Find supporting collections and inspect the original narration.
+- **Educational and editorial tools:** Help reviewers locate quotations and check source wording.
+- **Web applications:** Highlight text matches and show citations or source context.
+- **AI and LLM applications:** Check generated Hadith wording, retrieve source passages, and provide grounding evidence for citation workflows. Human review remains important.
+
+## Documentation and community
+
+- [Public API and result structure](https://github.com/RayenFekih/hadith-detector/blob/main/docs/public-api.md)
+- [Matching and fuzzy behavior](https://github.com/RayenFekih/hadith-detector/blob/main/docs/fuzzy-runtime.md)
+- [HTML annotation](https://github.com/RayenFekih/hadith-detector/blob/main/docs/html-annotation.md)
+- [Evaluation and limitations](https://github.com/RayenFekih/hadith-detector/blob/main/docs/phase6-evaluation.md)
+- [Contributing](https://github.com/RayenFekih/hadith-detector/blob/main/CONTRIBUTING.md)
+- [Changelog](https://github.com/RayenFekih/hadith-detector/blob/main/CHANGELOG.md)
+- [Report a bug or request a feature](https://github.com/RayenFekih/hadith-detector/issues)
+
+Contributions, issue reports, reproducible examples, and suggestions for additional Hadith sources are welcome.
