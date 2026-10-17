@@ -4,7 +4,7 @@
 
 [![Python 3.11–3.14](https://img.shields.io/badge/Python-3.11%E2%80%933.14-3776AB?logo=python&logoColor=white)](https://github.com/RayenFekih/hadith-detector/blob/main/pyproject.toml)
 [![CI](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml)
-[![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](https://github.com/RayenFekih/hadith-detector/blob/main/LICENSE)
+[![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](LICENSE)
 
 `hadith-detector` is a Python library that finds Arabic passages matching Hadith texts and returns their supporting sources. It works with short quotations or longer documents, supports exact and configurable fuzzy matching, and runs locally without an API key or an internet connection after installation.
 
@@ -26,22 +26,60 @@ Requires **Python 3.11–3.14**. The package includes the Hadith texts and a pre
 
 ## Quick start
 
-Detect a Hadith quotation and highlight it in the original Arabic text:
+This example looks for Hadith passages in a short Arabic reflection about seeking forgiveness. It also shows how to inspect the original sources and highlight detected text.
+
+**1. Configure the detector and find matches**
 
 ```python
-from hadith_detector import detect, annotate
+from hadith_detector import HadithDetector, DetectorConfig
 
-text = "قال رسول الله ﷺ: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى."
+detector = HadithDetector(
+    config=DetectorConfig(
+        min_match_words=9,
+        max_errors=0,
+        max_missing_words=0,
+    )
+)
 
-matches = detect(text)
-print(matches[0].text)
-print(matches[0].references[0].record.hadith_key)
+text = """
+لا تجعل الاستغفار مرتبطًا بالوقوع في الذنب وحده،
+بل اجعله عادة يومية تتقرب بها إلى الله، وتجدد بها توبتك
+وتستشعر افتقارك إليه. فقد كان النبي صلى الله عليه وسلم
+يكثر من الاستغفار، وقال:
+إِنَّهُ لَيُغَانُ عَلَى قَلْبِي وَإِنِّي لأَسْتَغْفِرُ اللَّهَ فِي الْيَوْمِ مِائَةَ مَرَّةٍ
+فاحرص على كثرة الاستغفار، وداوم عليه بقلب حاضر،
+فهو عبادة وتعبير عن التواضع والافتقار إلى الله.
+"""
 
-html = annotate(text)
-print(html)  # Escaped HTML fragment with <mark> around detected passages
+matches = detector.detect(text)
+print("Number of detections:", len(matches))
 ```
 
-`detect()` returns matched passages, their original character offsets, and supporting Hadith references. A passage may have multiple supporting references. `annotate()` returns an HTML fragment that highlights matches without changing the original Arabic wording.
+**2. Inspect the first detected passage and its source**
+
+```python
+if matches:
+    match = matches[0]
+    print("Detected text:", match.text)
+    print("Position in input:", (match.start, match.end))
+    print("Number of supporting records:", len(match.references))
+
+    if match.references:
+        reference = match.references[0]
+        print("Reference:", reference.record.hadith_key)
+        print("Full Hadith:", reference.record.text)
+```
+
+**3. Highlight detected passages**
+
+```python
+html = detector.annotate(text)
+print("Annotated HTML:", html)
+```
+
+Run the three blocks in order in the same Python session. `detect()` returns **passages in the input**, not a single Hadith classification. `match.start` is inclusive and `match.end` is exclusive, so `text[match.start:match.end]` reproduces the matched text. Each passage may have multiple supporting source records; the example prints only the first match and its first reference. `annotate()` returns an escaped HTML fragment containing `<mark>` tags.
+
+**Check what was actually matched.** A matching phrase may be an incidental attribution formula rather than the quotation you intended. The threshold of `9` reduces some short matches but does not filter generic phrases automatically; always review the returned passage and source. When pasting Arabic code into Windows PowerShell, save it as a UTF-8 `.py` file instead of piping the code through standard input to avoid character corruption.
 
 ## Features
 
@@ -123,7 +161,7 @@ The package currently includes **14,940 Arabic Hadith records**:
 
 The data comes from the [QuranLab Hadith dataset on Hugging Face](https://huggingface.co/datasets/quranlab/hadith), using its `bukhari-ar` and `muslim-ar` configurations. Original Arabic records, source identities, and accompanying metadata are retained. **Additional Hadith books are planned for future versions.**
 
-The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](https://github.com/RayenFekih/hadith-detector/blob/main/tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
+The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
 
 ## Use cases
 
@@ -135,12 +173,20 @@ The library's **code is MIT-licensed**; the underlying Hadith data has separate 
 
 ## Documentation and community
 
-- [Public API and result structure](https://github.com/RayenFekih/hadith-detector/blob/main/docs/public-api.md)
-- [Matching and fuzzy behavior](https://github.com/RayenFekih/hadith-detector/blob/main/docs/fuzzy-runtime.md)
-- [HTML annotation](https://github.com/RayenFekih/hadith-detector/blob/main/docs/html-annotation.md)
-- [Evaluation and limitations](https://github.com/RayenFekih/hadith-detector/blob/main/docs/phase6-evaluation.md)
-- [Contributing](https://github.com/RayenFekih/hadith-detector/blob/main/CONTRIBUTING.md)
-- [Changelog](https://github.com/RayenFekih/hadith-detector/blob/main/CHANGELOG.md)
+- [Public API and result structure](docs/public-api.md)
+- [Matching and fuzzy behavior](docs/fuzzy-runtime.md)
+- [HTML annotation](docs/html-annotation.md)
+- [Evaluation and limitations](docs/phase6-evaluation.md)
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 - [Report a bug or request a feature](https://github.com/RayenFekih/hadith-detector/issues)
 
 Contributions, issue reports, reproducible examples, and suggestions for additional Hadith sources are welcome.
+
+---
+
+### دعوة طيبة
+
+أرجو منكم الدعاء لوالديَّ بأن يحفظهما الله، ويبارك في عمرهما وصحتهما، ويمتعهما بالعافية، ويغفر لهما ويرحمهما كما ربياني صغيرًا، وأن يرزقني برَّهما ورضاهما.
+
+جزاكم الله خيرًا، وبارك فيكم.
