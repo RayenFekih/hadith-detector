@@ -3,6 +3,7 @@
 **Detect Arabic Hadith text and find its sources. Offline, in Python.**
 
 [![Python 3.11–3.14](https://img.shields.io/badge/Python-3.11%E2%80%933.14-3776AB?logo=python&logoColor=white)](https://github.com/RayenFekih/hadith-detector/blob/main/pyproject.toml)
+[![PyPI](https://img.shields.io/pypi/v/hadith-detector.svg)](https://pypi.org/project/hadith-detector/)
 [![CI](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml)
 [![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](LICENSE)
 
