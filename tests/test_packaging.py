@@ -219,6 +219,44 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
 
 
 @pytest.mark.parametrize("artifact_index", [0, 2], ids=["checkout-wheel", "sdist-wheel"])
+def test_release_inspection_accepts_optional_mcp(artifacts, artifact_index):
+    from tools.release_artifacts import inspect
+
+    wheel = artifacts[artifact_index]
+    with zipfile.ZipFile(wheel) as archive:
+        lock = json.loads(archive.read("hadith_detector/_bundle.json"))
+    assert inspect(wheel, lock)["version"]
+
+
+@pytest.mark.parametrize(
+    ("original", "replacement"),
+    [
+        ('mcp<2,>=1.30; extra == "mcp"', "mcp<2,>=1.30"),
+        ("Provides-Extra: mcp", "Provides-Extra: unexpected"),
+        ("Requires-Dist: rapidfuzz<4,>=3.14.6\n", ""),
+    ],
+    ids=["mcp-must-stay-optional", "unexpected-extra", "missing-base-dependency"],
+)
+def test_release_inspection_rejects_changed_dependencies(
+    artifacts, tmp_path, original, replacement
+):
+    from tools.release_artifacts import inspect
+
+    modified = tmp_path / "changed.whl"
+    with zipfile.ZipFile(artifacts[0]) as source, zipfile.ZipFile(modified, "w") as target:
+        lock = json.loads(source.read("hadith_detector/_bundle.json"))
+        for member in source.infolist():
+            content = source.read(member)
+            if member.filename.endswith("/METADATA"):
+                metadata = content.decode("utf-8").replace("\r\n", "\n")
+                assert original in metadata
+                content = metadata.replace(original, replacement).encode("utf-8")
+            target.writestr(member, content)
+    with pytest.raises(AssertionError):
+        inspect(modified, lock)
+
+
+@pytest.mark.parametrize("artifact_index", [0, 2], ids=["checkout-wheel", "sdist-wheel"])
 def test_clean_wheel_install(
     artifacts: tuple[Path, Path, Path], wheelhouse: Path, tmp_path: Path, artifact_index: int
 ) -> None:

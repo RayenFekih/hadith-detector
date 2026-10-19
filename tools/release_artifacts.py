@@ -35,9 +35,10 @@ def inspect(wheel, lock):
         assert set(metadata.get_all("Requires-Dist")) == {
             "rapidfuzz<4,>=3.14.6",
             "marisa-trie==1.4.1",
+            'mcp<2,>=1.30; extra == "mcp"',
         }
         assert metadata["License-Expression"] == "MIT"
-        assert not metadata.get_all("Provides-Extra")
+        assert metadata.get_all("Provides-Extra") == ["mcp"]
         assert not any(n.endswith((".parquet", ".ipynb")) for n in names)
         return {
             "version": metadata["Version"],
