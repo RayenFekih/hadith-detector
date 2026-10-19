@@ -68,6 +68,10 @@ when dependencies change, then rerun checks. No pre-commit hook is required.
 
 ## Review and Git workflow
 
+MCP development uses `uv sync --locked --extra mcp`; retain `--extra mcp` on
+`uv run --frozen` commands for tests, Ruff, and mypy. Base installations remain
+independent of the SDK. See [MCP checks and packaging](docs/mcp.md#development-checks).
+
 Work in independently reviewable phases. Update documentation and the Unreleased
 changelog with behavior changes. Run relevant checks before each commit, inspect
 the explicit staged diff, and run the complete suite before phase acceptance.

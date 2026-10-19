@@ -27,6 +27,24 @@ Requires **Python 3.11–3.14**. The package includes the Hadith texts and a pre
 
 ## Quick start
 
+### MCP-compatible assistants
+
+To expose the library as local tools for an AI assistant, install the optional extra:
+
+```bash
+pip install "hadith-detector[mcp]"
+hadith-detector-mcp
+```
+
+The client normally starts this stdio process automatically. It provides
+`detect_hadith`, `annotate_hadith`, and `get_hadith` using the same offline bundled
+corpus. Results are candidate textual matches requiring contextual review; they do
+not establish quotation intent or authenticity. The regular Python installation
+does not require MCP dependencies. See the [MCP guide](docs/mcp.md) for client
+configuration, schemas, pagination, examples, and interpretation limits.
+
+### Python
+
 This example looks for Hadith passages in a short Arabic reflection about seeking forgiveness. It also shows how to inspect the original sources and highlight detected text.
 
 **1. Configure the detector and find matches**
@@ -175,6 +193,7 @@ The library's **code is MIT-licensed**; the underlying Hadith data has separate 
 ## Documentation and community
 
 - [Public API and result structure](docs/public-api.md)
+- [Local MCP server and client configuration](docs/mcp.md)
 - [Matching and fuzzy behavior](docs/fuzzy-runtime.md)
 - [HTML annotation](docs/html-annotation.md)
 - [Evaluation and limitations](docs/phase6-evaluation.md)

@@ -14,6 +14,9 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
+- Optional local MCP integration (`hadith-detector[mcp]`) with stdio CLI,
+  detection, annotation and retrieval tools, structured evidence and explicit
+  pagination, contextual-review instructions, documentation and protocol tests.
 - One bundled Bukhari/Muslim corpus with prebuilt MARISA v2 resources, optional
   `index_dir` defaults, offline staging and fail-closed distribution builds (Phase 7).
 - Manual, non-publishing release-readiness workflow for actual bundled candidates
