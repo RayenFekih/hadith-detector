@@ -5,6 +5,7 @@ recursive-include src/hadith_detector/_data *
 recursive-include src/hadith_detector *.py py.typed
 recursive-include tests *.py
 recursive-include docs *.md
+recursive-include examples *.json
 # This report records final archive checksums; keep it outside the archives it describes.
 exclude docs/phase7-validation.md
 recursive-include tools *.py *.json

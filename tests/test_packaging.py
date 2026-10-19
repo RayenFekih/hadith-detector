@@ -58,7 +58,7 @@ def artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Pat
         "uv.lock",
     ):
         shutil.copyfile(ROOT / name, project / name)
-    for name in ("src", "tools", "tests", "docs"):
+    for name in ("src", "tools", "tests", "docs", "examples"):
         shutil.copytree(
             ROOT / name,
             project / name,
@@ -163,8 +163,14 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert set(metadata.get_all("Requires-Dist", [])) == {
             "rapidfuzz<4,>=3.14.6",
             "marisa-trie==1.4.1",
+            'mcp<2,>=1.30; extra == "mcp"',
         }
-        assert metadata.get_all("Provides-Extra", []) == []
+        assert metadata.get_all("Provides-Extra", []) == ["mcp"]
+        assert "hadith_detector/mcp/server.py" in names
+        assert (
+            "hadith-detector-mcp"
+            in archive.read(next(n for n in names if n.endswith("/entry_points.txt"))).decode()
+        )
         assert metadata["Version"]
         assert any(n.endswith("/licenses/LICENSE") for n in names)
         assert all(n.startswith(("hadith_detector/", "hadith_detector-")) for n in names)
@@ -183,6 +189,8 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         relative = [Path(*Path(n).parts[1:]).as_posix() for n in archive.getnames()]
         assert "src/hadith_detector/py.typed" in relative
         assert "docs/roadmap.md" in relative
+        assert "docs/mcp.md" in relative
+        assert "examples/mcp-client.json" in relative
         assert "data/README.md" in relative
         assert "tools/prepare_data.py" in relative
         assert "tools/build_index.py" in relative
@@ -254,6 +262,15 @@ assert callable(hadith_detector.HadithDetector.from_directory)
 assert callable(hadith_detector.detect)
 assert find_spec('rapidfuzz') is not None
 assert find_spec('marisa_trie') is not None
+assert find_spec('mcp') is None
+assert find_spec('pydantic') is None
+import hadith_detector.mcp
+try:
+    hadith_detector.mcp.main()
+except SystemExit as exc:
+    assert 'hadith-detector[mcp]' in str(exc)
+else:
+    raise AssertionError('Missing MCP dependency should give an installation hint')
 assert 'rapidfuzz' not in __import__('sys').modules
 from rapidfuzz.distance import Levenshtein
 assert Levenshtein.distance('سلام', 'سلا', score_cutoff=1) == 1
@@ -296,3 +313,46 @@ print(json.dumps({'file': hadith_detector.__file__}))
     )
     assert Path(json.loads(result.stdout)["file"]).is_relative_to(environment)
     assert list(working.iterdir()) == []
+
+
+@pytest.mark.parametrize("artifact_index", [0, 2], ids=["checkout-wheel", "sdist-wheel"])
+def test_clean_mcp_wheel_install(artifacts, tmp_path, artifact_index):
+    pytest.importorskip("mcp")
+    uv = shutil.which("uv")
+    assert uv is not None
+    environment = tmp_path / "venv"
+    run(uv, "venv", "--python", sys.executable, str(environment), cwd=tmp_path)
+    python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    run(
+        uv,
+        "pip",
+        "install",
+        "--python",
+        str(python),
+        str(artifacts[artifact_index]) + "[mcp]",
+        cwd=tmp_path,
+    )
+    command = environment / (
+        "Scripts/hadith-detector-mcp.exe" if os.name == "nt" else "bin/hadith-detector-mcp"
+    )
+    example = json.loads((ROOT / "examples/mcp-client.json").read_text(encoding="utf-8"))
+    example["mcpServers"]["hadith-detector"]["command"] = str(python)
+    for launch in ({"command": str(command), "args": []}, example["mcpServers"]["hadith-detector"]):
+        config = tmp_path / "client.json"
+        config.write_text(json.dumps({"mcpServers": {"hadith-detector": launch}}), encoding="utf-8")
+        result = subprocess.run(
+            [
+                str(python),
+                "-I",
+                str(ROOT / "tests/mcp_stdio_probe.py"),
+                str(config),
+                "عن نافع عن ابن عمر",
+                "fixture:1",
+            ],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert result.stdout.strip() == "MCP stdio probe passed"

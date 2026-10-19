@@ -30,6 +30,12 @@ Issues = "https://github.com/RayenFekih/hadith-detector/issues"
 Homepage = "https://github.com/RayenFekih/hadith-detector"
 Changelog = "https://github.com/RayenFekih/hadith-detector/blob/main/CHANGELOG.md"
 
+[project.optional-dependencies]
+mcp = ["mcp>=1.30,<2"]
+
+[project.scripts]
+hadith-detector-mcp = "hadith_detector.mcp:main"
+
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.16.6", "mypy>=1.15", "build>=1.2", "twine>=6"]
 data = ["huggingface-hub>=1", "pyarrow>=20"]
