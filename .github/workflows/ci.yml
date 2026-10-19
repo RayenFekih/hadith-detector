@@ -80,8 +80,8 @@ jobs:
           version: '0.11.26'
           python-version: ${{ matrix.python }}
           enable-cache: true
-      - run: uv sync --locked
-      - run: uv run --frozen python -m pytest
+      - run: uv sync --locked --extra mcp
+      - run: uv run --frozen --extra mcp python -m pytest
 
   quality:
     runs-on: ubuntu-latest
@@ -94,9 +94,9 @@ jobs:
           version: '0.11.26'
           python-version: '3.14'
           enable-cache: true
-      - run: uv sync --locked
-      - run: uv run --frozen ruff check .
-      - run: uv run --frozen ruff format --check .
-      - run: uv run --frozen mypy src/hadith_detector
+      - run: uv sync --locked --extra mcp
+      - run: uv run --frozen --extra mcp ruff check .
+      - run: uv run --frozen --extra mcp ruff format --check .
+      - run: uv run --frozen --extra mcp mypy src/hadith_detector
       # Tests build isolated synthetic bundles. Full production builds belong to
       # the manually triggered, non-publishing release-readiness workflow.

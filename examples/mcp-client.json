@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hadith-detector": {
+      "command": "/absolute/path/to/venv/bin/python",
+      "args": ["-m", "hadith_detector.mcp"]
+    }
+  }
+}
