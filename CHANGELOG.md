@@ -3,7 +3,39 @@
 Release notes are maintained manually. Versions use Git tags and 0.x development
 conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Unreleased
+## [0.2.0] - Unreleased
+
+### Added
+
+- Optional local MCP integration through `pip install "hadith-detector[mcp]"`,
+  using the official Python MCP SDK without adding dependencies to base installs.
+- `hadith-detector-mcp` CLI and `python -m hadith_detector.mcp` entry points,
+  using local stdio transport and the existing bundled corpus and shared detector.
+- `detect_hadith`, `annotate_hadith`, and `get_hadith` tools with structured schemas,
+  strict configuration validation, original character offsets, and matching evidence.
+- Explicit match, reference, and occurrence pagination, including totals and next
+  offsets, while preserving exact and approximate match details.
+- Server instructions and candidate labels explaining contextual review, citation
+  evidence, and the limits of textual matching and authenticity claims.
+- MCP setup guide, client configuration example, validation report, protocol tests,
+  and clean-install checks for both base and MCP-enabled distributions.
+- PyPI badge in the README and homepage/changelog links in package metadata.
+
+### Changed
+
+- CI now exercises MCP tests and quality checks with the optional extra installed.
+  Existing matching algorithms, default detection settings, and Python APIs are unchanged.
+
+## [0.1.1] - 2026-10-17
+
+### Changed
+
+- Improved the README quick start with a complete Arabic example, source inspection,
+  annotation, and clearer guidance on offsets, configuration, and incidental matches.
+
+## [0.1.0] - 2026-10-17
+
+Initial tagged release. The entries below cover the library's development up to this tag.
 
 ### Fixed
 
@@ -14,9 +46,6 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Added
 
-- Optional local MCP integration (`hadith-detector[mcp]`) with stdio CLI,
-  detection, annotation and retrieval tools, structured evidence and explicit
-  pagination, contextual-review instructions, documentation and protocol tests.
 - One bundled Bukhari/Muslim corpus with prebuilt MARISA v2 resources, optional
   `index_dir` defaults, offline staging and fail-closed distribution builds (Phase 7).
 - Manual, non-publishing release-readiness workflow for actual bundled candidates
@@ -93,7 +122,8 @@ conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Dependency policy now requires offline operation while allowing evidence-based
   adoption of maintained dependencies.
 
-- Replaced the unused application scaffold with a library using no runtime dependencies.
+- Replaced the unused application scaffold with a supported Python library.
 
-Annotation and bundled resources remain planned. Runtime distributions
-contain neither the corpus nor preprocessing dependencies.
+[0.2.0]: https://github.com/RayenFekih/hadith-detector/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/RayenFekih/hadith-detector/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/RayenFekih/hadith-detector/releases/tag/v0.1.0
