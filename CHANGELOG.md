@@ -3,7 +3,20 @@
 Release notes are maintained manually. Versions use Git tags and 0.x development
 conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## [0.2.0] - Unreleased
+## [0.3.0] - Unreleased
+
+### Added
+
+- Optional [Jev contextual validation](docs/jev-validation.md) through TypeSafe,
+  TunAI, or a compatible Jev endpoint. The detector runs offline by default.
+- With Jev enabled, `detect()` scores each unique span in context. It drops the
+  whole detection, including its references, when the score falls below the
+  threshold (default `0.5`). Retained detections expose a `quotation_score`.
+- `annotate()` includes every candidate in the HTML, with its score and decision
+  in `data-validation`. If validation fails, the detector keeps the candidate,
+  marks its score as unavailable, and issues a warning.
+
+## [0.2.0] - 2026-10-19
 
 ### Added
 
