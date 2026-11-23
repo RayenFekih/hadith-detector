@@ -23,8 +23,12 @@ def canonical(value):
 
 
 def run_readme(path: Path) -> int:
-    """Execute the actual examples without depending on their variable names."""
-    examples = re.findall(r"```python\n(.*?)```", path.read_text(encoding="utf-8"), re.S)
+    """Execute README examples that can run with the network blocked."""
+    examples = [
+        code
+        for code in re.findall(r"```python\n(.*?)```", path.read_text(encoding="utf-8"), re.S)
+        if code.split("\n", 1)[0] != "# release-probe: requires-network"
+    ]
     if not examples:
         raise ValueError("README contains no Python examples to verify")
     namespace = {}
