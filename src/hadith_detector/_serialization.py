@@ -11,6 +11,7 @@ from .models import (
     HadithRecord,
     HadithReference,
     OmittedSourceToken,
+    QuotationValidation,
     SourceOccurrence,
     WordAlignment,
 )
@@ -174,9 +175,16 @@ def reference(value: Any) -> HadithReference:
     return HadithReference(source, occurrences)
 
 
+def validation(value: Any) -> QuotationValidation:
+    data = _object(value, {"model", "quotation_score", "threshold", "decision"}, {"error"})
+    return QuotationValidation(**data)
+
+
 def detection(value: Any) -> Detection:
     data = _object(
-        value, {"start", "end", "text", "matched_words", "references"}, {"errors", "missing_words"}
+        value,
+        {"start", "end", "text", "matched_words", "references"},
+        {"errors", "missing_words", "validation"},
     )
     a, b = _span(data["start"], data["end"], _string(data["text"]))
     count = _integer(data["matched_words"], 1)
@@ -207,4 +215,5 @@ def detection(value: Any) -> Detection:
                 input_trace = current
     if min(costs) != (errors, missing):
         raise ValueError("Detection costs must be the best supporting cost pair")
-    return Detection(a, b, data["text"], count, references, errors, missing)
+    metadata = validation(data["validation"]) if data.get("validation") is not None else None
+    return Detection(a, b, data["text"], count, references, errors, missing, metadata)

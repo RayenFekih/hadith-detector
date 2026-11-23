@@ -3,7 +3,7 @@
 The package contains one combined Sahih Bukhari/Sahih Muslim corpus with prebuilt
 MARISA v2 resources. Constructors and convenience functions use it when `index_dir`
 is omitted or `None`; explicit directories retain their behavior and never fall
-back silently. Nothing is downloaded or rebuilt at runtime. Standard unpacked pip
+back silently. No corpus resources are downloaded or rebuilt at runtime. Standard unpacked pip
 installations are supported. See [annotation behavior](html-annotation.md).
 
 ## Construction and configuration
@@ -69,22 +69,21 @@ There is no global dataset configuration or configurable cache capacity.
 ## Thread safety and costs
 
 A reentrant per-instance lock protects detection, lazy fuzzy state, source
-lookup and annotation through completion of rendering. Concurrent calls on the same instance execute sequentially. Independent
+lookup and disabled annotation through completion of rendering. Matching on the same instance executes sequentially. Independent
 instances have independent fuzzy caches; this API provides no parallel or async
 execution facility. The convenience-cache lock protects creation only and is
 released before running detection. Clearing the cache can complete while an
 existing detection is still running.
 
-The earlier MARISA measurements found about 78 MiB less steady memory with
-about 1.34 seconds additional one-time validated initialization. These are
-historical measurements, not new Phase 5A performance claims. Long-lived
-instances amortize loading. Integrity checks remain complete; locking does not
-weaken validation or alter matching.
+Long-lived instances amortize validated resource loading. Integrity checks remain
+complete; locking does not weaken validation or alter matching. Optional Jev
+requests and enabled annotation rendering run outside the resource lock. Those
+network requests can overlap across calls and add latency and provider usage costs.
 
 ## Results and serialization
 
 The existing [result field table](runtime-index.md#results-and-source-preservation)
-and dictionary shapes are unchanged. Each exported result dataclass provides
+and disabled dictionary shapes are unchanged. Each exported result dataclass provides
 `to_dict()` and `from_dict(payload)`:
 
 ```python
@@ -114,7 +113,26 @@ fields on other models are rejected.
 These checks do not tokenize, consult resources, reproduce matching or authenticate
 a narration. Standalone models can check only information present in that model;
 parent models add available substring and count checks. Direct dataclass constructors
-remain unchanged; `from_dict()` is the validated restoration path.
+retain existing matching fields; `from_dict()` is the validated restoration path.
+
+## Optional Jev validation
+
+`HadithDetector()` and `from_directory()` accept keyword-only `validation_model=None`,
+`validation_api_key=None`, `validation_api_base=None` and `validation_threshold=0.5`.
+The module-level `detect()` and `annotate()` functions accept the same options
+per call without storing provider credentials in the shared matcher cache.
+
+When enabled, `detect()` returns accepted candidates plus candidates whose validation
+was unavailable. Each carries `.validation`, a frozen `QuotationValidation` with
+`model`, `quotation_score`, `threshold`, `decision` and an optional error code.
+`to_dict()` adds this metadata only when present. Scores refer to contextual quotation
+use, not authenticity or correctness of supporting references.
+
+`annotate()` keeps all original candidates and includes scores and decisions in
+each mark's `data-validation` JSON. Its return type remains `str`. API failures
+retain candidates, use a null score and `decision="unavailable"`, and emit
+`ContextualValidationWarning`. Invalid configuration still raises `ValueError`.
+See [Jev setup and examples](jev-validation.md).
 
 ## Exceptions and limitations
 

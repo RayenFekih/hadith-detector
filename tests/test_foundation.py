@@ -12,6 +12,8 @@ import hadith_detector
 def test_version_matches_distribution() -> None:
     assert hadith_detector.__version__ == version("hadith-detector")
     assert set(hadith_detector.__all__) == {
+        "QuotationValidation",
+        "ContextualValidationWarning",
         "__version__",
         "HadithDetector",
         "DetectorConfig",

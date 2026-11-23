@@ -66,6 +66,8 @@ def artifacts(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Pat
         )
     (project / "data").mkdir()
     shutil.copyfile(ROOT / "data/README.md", project / "data/README.md")
+    (project / "data/private-evaluation.jsonl").write_text('{"private": true}\n')
+    (project / ".env").write_text("TUNAI_API_KEY=synthetic-placeholder\n")
     from tools.stage_bundle import stage
 
     from .test_bundled import synthetic_package
@@ -167,6 +169,7 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         }
         assert metadata.get_all("Provides-Extra", []) == ["mcp"]
         assert "hadith_detector/mcp/server.py" in names
+        assert "hadith_detector/_validation.py" in names
         assert (
             "hadith-detector-mcp"
             in archive.read(next(n for n in names if n.endswith("/entry_points.txt"))).decode()
@@ -190,6 +193,26 @@ def test_artifact_contents_and_metadata(artifacts: tuple[Path, Path, Path]) -> N
         assert "src/hadith_detector/py.typed" in relative
         assert "docs/roadmap.md" in relative
         assert "docs/mcp.md" in relative
+        assert "docs/jev-validation.md" in relative
+        assert not any(n.startswith("tools/evaluation/") for n in relative)
+        assert not any(".env" in Path(n).parts for n in relative)
+        assert not {
+            "docs/contextual-validation.md",
+            "docs/phase6-ai-annotation.md",
+            "docs/phase6-ai-comparison.md",
+            "docs/phase6-contextual-comparison.md",
+            "docs/phase6-evaluation.md",
+            "tools/evaluation/contextual.py",
+            "tools/evaluation/phase6_jev.py",
+            "tools/evaluation/phase6_jev_report.py",
+            "tools/evaluation/blind_annotation.py",
+            "tools/evaluation/blind_source_lookup.py",
+            "tools/evaluation/annotation_comparison.py",
+            "tests/test_contextual_evaluation.py",
+            "tests/test_phase6_jev.py",
+            "tests/test_blind_annotation.py",
+            "tests/test_annotation_comparison.py",
+        }.intersection(relative)
         assert "examples/mcp-client.json" in relative
         assert "data/README.md" in relative
         assert "tools/prepare_data.py" in relative
@@ -287,6 +310,7 @@ def test_clean_wheel_install(
     script = """
 import json
 import socket
+import urllib.request
 def forbid_network(*args, **kwargs):
     raise AssertionError('Import attempted network access')
 socket.socket = forbid_network
@@ -339,6 +363,24 @@ html = detector.annotate(text, max_errors=1)
 assert ''.join(Text(html).parts) == text
 assert '<script' not in html and 'class="hadith-match"' in html
 assert hadith_detector.annotate(text, index_dir=detector.index_dir, max_errors=1) == html
+assert 'hadith_detector._validation' not in __import__('sys').modules
+from hadith_detector import _validation
+def mocked_jev(payload, *args):
+    return {'model': 'jev-1.14.0', 'answers': {
+        name: {'noul': 0.25} for name in payload['questions']}}
+_validation._request = mocked_jev
+validated = hadith_detector.HadithDetector(
+    detector.index_dir, config=hadith_detector.DetectorConfig(max_errors=1),
+    validation_model='jev', validation_api_key='synthetic-placeholder')
+assert validated.detect(result[0].text) == []
+assert 'data-validation=' in validated.annotate(result[0].text)
+_validation._request = lambda payload, *args: {'model': 'jev-1.14.0', 'answers': {
+    name: {'noul': 0.9} for name in payload['questions']}}
+kept = validated.detect(result[0].text)[0]
+assert kept.validation.quotation_score == 0.9
+assert len(kept.references) == 2
+assert hadith_detector.Detection.from_dict(kept.to_dict()) == kept
+assert 'validation' not in detector.detect(result[0].text)[0].to_dict()
 hadith_detector.clear_cache()
 print(json.dumps({'file': hadith_detector.__file__}))
 """

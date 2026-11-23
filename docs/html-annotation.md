@@ -3,7 +3,14 @@
 Annotation returns an HTML fragment string containing escaped **plain input text**
 and one `<mark>` per detector-selected passage. It supports exact matches,
 character edits and internal source omissions with the same configuration and
-matching behavior as `detect()`.
+matching behavior as `detect()` when contextual validation is disabled.
+
+With optional Jev validation enabled, `annotate()` deliberately keeps every original
+candidate, including rejected spans. It still returns HTML, adding HTML-escaped
+`data-validation` JSON to each mark with the quotation score, threshold and decision.
+This allows inspection of other thresholds without another API call. See the
+[Jev guide](jev-validation.md) for examples, metadata interpretation and unavailable
+scores. Disabled markup is unchanged.
 
 ```python
 from hadith_detector import DetectorConfig, HadithDetector, annotate
@@ -54,7 +61,8 @@ Each passage is rendered with these attributes, in this order:
 supporting pair; other supporting occurrences may have different costs.
 `data-reference-count` counts source identities, not source occurrences. Exact
 and fuzzy passages use the same markup. No source URLs, narration metadata,
-embedded JSON, automatic links, tooltips, scripts or event attributes are added.
+embedded JSON, automatic links, tooltips, scripts or event attributes are added
+when Jev is disabled. Enabled marks add only the validation JSON attribute.
 Use `detect()` separately when full references and canonical traces are needed;
 annotation does not truncate or change detection results. No public interface
 accepts externally supplied detections.
@@ -82,8 +90,10 @@ spacing and line breaks, apply `white-space: pre-wrap` to the containing element
 .hadith-match { background: #fff2b3; }
 ```
 
-Concurrent annotation/detection/lookup calls on one instance execute sequentially,
-including rendering, under its reentrant lock. Convenience-cache locking is
+Disabled annotation/detection/lookup calls on one instance execute sequentially,
+including rendering, under its reentrant lock. With Jev enabled, matching is still
+synchronized, but network validation and HTML rendering run outside that lock.
+Convenience-cache locking is
 released before annotation. Clearing the cache does not interrupt an in-flight
 call. Resources remain immutable, offline and validated once per initialization.
 

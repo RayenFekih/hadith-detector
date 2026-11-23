@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 from threading import RLock
+from typing import TYPE_CHECKING
 
 from ._annotation import render, validate
 from ._bundled import directory
@@ -13,21 +14,67 @@ from ._fuzzy import FuzzyMatcher
 from ._resources import MAX_U32, Resources, Sequence, query_sequence
 from ._text import tokenize
 from .config import DetectorConfig
-from .models import Detection, HadithRecord, HadithReference, SourceOccurrence, WordAlignment
+from .models import (
+    Detection,
+    HadithRecord,
+    HadithReference,
+    SourceOccurrence,
+    WordAlignment,
+    _unit_score,
+)
+
+if TYPE_CHECKING:
+    from ._validation import JevValidator
 
 Run = tuple[int, int, int, int, int]
 
 
-class HadithDetector:
-    """Offline exact/fuzzy API; calls on one instance execute sequentially."""
+def _validator(
+    model: str | None, key: str | None, base: str | None, threshold: float
+) -> JevValidator | None:
+    threshold = _unit_score(threshold, "validation_threshold")
+    if model is None:
+        if key is not None or base is not None:
+            raise ValueError("validation_model is required with validation credentials or API base")
+        return None
+    import os
 
-    __slots__ = ("_resources", "_fuzzy", "_config", "_index_dir", "_lock")
+    from ._validation import DEFAULT_BASE, JevValidator
+
+    effective_base = DEFAULT_BASE if base is None else base
+    if (
+        key is None
+        and isinstance(effective_base, str)
+        and effective_base.rstrip("/") == DEFAULT_BASE
+    ):
+        key = os.environ.get("TYPESAFE_API_KEY")
+    return JevValidator(model, key or "", effective_base, threshold)
+
+
+def _accepted(matches: list[Detection]) -> list[Detection]:
+    return [m for m in matches if m.validation is None or m.validation.decision != "reject"]
+
+
+class HadithDetector:
+    """Exact/fuzzy matching with optional remote quotation validation."""
+
+    __slots__ = ("_resources", "_fuzzy", "_config", "_index_dir", "_lock", "_validator")
 
     def __init__(
-        self, index_dir: str | Path | None = None, config: DetectorConfig | None = None
+        self,
+        index_dir: str | Path | None = None,
+        config: DetectorConfig | None = None,
+        *,
+        validation_model: str | None = None,
+        validation_api_key: str | None = None,
+        validation_api_base: str | None = None,
+        validation_threshold: float = 0.5,
     ) -> None:
         if config is not None and not isinstance(config, DetectorConfig):
             raise TypeError("config must be a DetectorConfig or None")
+        self._validator = _validator(
+            validation_model, validation_api_key, validation_api_base, validation_threshold
+        )
         self._config = config if config is not None else DetectorConfig()
         self._index_dir = directory(index_dir)
         self._lock = RLock()
@@ -57,12 +104,26 @@ class HadithDetector:
 
     @classmethod
     def from_directory(
-        cls, index_dir: str | Path, config: DetectorConfig | None = None
+        cls,
+        index_dir: str | Path,
+        config: DetectorConfig | None = None,
+        *,
+        validation_model: str | None = None,
+        validation_api_key: str | None = None,
+        validation_api_base: str | None = None,
+        validation_threshold: float = 0.5,
     ) -> HadithDetector:
         """Validate/load local resources without downloading or rebuilding."""
         if index_dir is None:
             raise TypeError("from_directory requires an explicit directory")
-        return cls(index_dir, config)
+        return cls(
+            index_dir,
+            config,
+            validation_model=validation_model,
+            validation_api_key=validation_api_key,
+            validation_api_base=validation_api_base,
+            validation_threshold=validation_threshold,
+        )
 
     def get_hadith(self, hadith_key: str) -> HadithRecord:
         """Return an independent snapshot; unknown identities raise KeyError."""
@@ -80,9 +141,17 @@ class HadithDetector:
         max_errors: int | None = None,
         max_missing_words: int | None = None,
     ) -> list[Detection]:
-        """Detect passages sequentially on this instance; None inherits defaults."""
+        """Detect passages; optional Jev filtering retains unavailable-score candidates."""
+        matches = self._matches(text, min_match_words, max_errors, max_missing_words)
+        if self._validator is not None:
+            return _accepted(self._validator.evaluate(text, matches))
+        return matches
+
+    def _matches(
+        self, text: str, minimum: int | None, errors: int | None, missing: int | None
+    ) -> list[Detection]:
         with self._lock:
-            config = self.config._override(min_match_words, max_errors, max_missing_words)
+            config = self.config._override(minimum, errors, missing)
             return self._detect(
                 text,
                 min_match_words=config.min_match_words,
@@ -101,12 +170,17 @@ class HadithDetector:
     ) -> str:
         """Escape plain text and highlight original detected spans in an HTML fragment.
 
-        Calls on this instance execute sequentially. Only HTML is supported;
+        Enabled Jev annotation retains all candidates and embeds validation metadata.
+        Matching is synchronized; remote validation runs outside the resource lock.
+        Only HTML is supported;
         NUL and lone surrogates cannot be represented losslessly and are rejected.
         Offsets in markup refer to the original Python string, not the HTML output.
         """
+        validate(text, format)
+        if self._validator is not None:
+            matches = self._matches(text, min_match_words, max_errors, max_missing_words)
+            return render(text, self._validator.evaluate(text, matches))
         with self._lock:
-            validate(text, format)
             matches = self.detect(
                 text,
                 min_match_words=min_match_words,
