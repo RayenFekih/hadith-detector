@@ -70,3 +70,19 @@ notebooks/*
 !notebooks/phase6_research_review.ipynb
 !notebooks/phase6_review_50.ipynb
 others/*
+
+# Private contextual-validation research; preserve locally, never stage for publication.
+docs/contextual-validation.md
+docs/phase6-ai-annotation.md
+docs/phase6-ai-comparison.md
+docs/phase6-contextual-comparison.md
+tools/evaluation/contextual.py
+tools/evaluation/phase6_jev.py
+tools/evaluation/phase6_jev_report.py
+tools/evaluation/blind_annotation.py
+tools/evaluation/blind_source_lookup.py
+tools/evaluation/annotation_comparison.py
+tests/test_contextual_evaluation.py
+tests/test_phase6_jev.py
+tests/test_blind_annotation.py
+tests/test_annotation_comparison.py

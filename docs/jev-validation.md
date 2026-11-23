@@ -99,6 +99,7 @@ scripts or change the input text. With Jev disabled, its markup is unchanged.
 import json
 from html.parser import HTMLParser
 
+
 class ValidationMarks(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attributes = dict(attrs)
@@ -106,6 +107,7 @@ class ValidationMarks(HTMLParser):
             # HTMLParser already decodes attribute entities.
             metadata = json.loads(attributes["data-validation"])
             print(attributes["data-start"], attributes["data-end"], metadata)
+
 
 html = detector.annotate(text)
 ValidationMarks().feed(html)

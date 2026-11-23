@@ -11,6 +11,7 @@ exclude docs/phase7-validation.md
 recursive-include tools *.py *.json
 recursive-include tools/bundle-notices *.md *.txt *.csv
 include uv.lock
+prune data
 include data/README.md
 prune .github
 prune .vscode
@@ -23,3 +24,12 @@ prune notebooks
 prune others
 prune logs
 global-exclude *.py[cod] .gitkeep
+global-exclude .env .env.*
+# Keep historical evaluation reports locally; do not ship them with the feature.
+exclude docs/phase*.md
+exclude docs/contextual-validation.md
+prune tools/evaluation
+exclude tests/test_contextual_evaluation.py tests/test_phase6_jev.py
+exclude tests/test_blind_annotation.py tests/test_annotation_comparison.py
+exclude tests/test_evaluation_preparation.py tests/test_evaluation_finalization.py
+exclude tests/test_technical_pilot.py tests/test_review_notebook.py
