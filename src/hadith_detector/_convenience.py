@@ -3,10 +3,10 @@
 from pathlib import Path
 from threading import RLock
 
-from ._annotation import validate
+from ._annotation import render, validate
 from ._bundled import directory
 from .config import DetectorConfig
-from .detector import HadithDetector
+from .detector import HadithDetector, _accepted, _validator
 from .models import Detection, HadithRecord
 
 _lock = RLock()
@@ -38,6 +38,10 @@ def detect(
     min_match_words: int | None = None,
     max_errors: int | None = None,
     max_missing_words: int | None = None,
+    validation_model: str | None = None,
+    validation_api_key: str | None = None,
+    validation_api_base: str | None = None,
+    validation_threshold: float = 0.5,
 ) -> list[Detection]:
     """Detect using cached bundled/local resources and independent per-call defaults."""
     if config is not None and not isinstance(config, DetectorConfig):
@@ -45,12 +49,16 @@ def detect(
     effective = (config if config is not None else DetectorConfig())._override(
         min_match_words, max_errors, max_missing_words
     )
-    return _detector(index_dir).detect(
+    validator = _validator(
+        validation_model, validation_api_key, validation_api_base, validation_threshold
+    )
+    matches = _detector(index_dir).detect(
         text,
         min_match_words=effective.min_match_words,
         max_errors=effective.max_errors,
         max_missing_words=effective.max_missing_words,
     )
+    return _accepted(validator.evaluate(text, matches)) if validator is not None else matches
 
 
 def annotate(
@@ -62,6 +70,10 @@ def annotate(
     min_match_words: int | None = None,
     max_errors: int | None = None,
     max_missing_words: int | None = None,
+    validation_model: str | None = None,
+    validation_api_key: str | None = None,
+    validation_api_base: str | None = None,
+    validation_threshold: float = 0.5,
 ) -> str:
     """Annotate plain text using the single cached detector and per-call settings."""
     validate(text, format)
@@ -70,6 +82,17 @@ def annotate(
     effective = (config if config is not None else DetectorConfig())._override(
         min_match_words, max_errors, max_missing_words
     )
+    validator = _validator(
+        validation_model, validation_api_key, validation_api_base, validation_threshold
+    )
+    if validator is not None:
+        matches = _detector(index_dir).detect(
+            text,
+            min_match_words=effective.min_match_words,
+            max_errors=effective.max_errors,
+            max_missing_words=effective.max_missing_words,
+        )
+        return render(text, validator.evaluate(text, matches))
     return _detector(index_dir).annotate(
         text,
         format=format,

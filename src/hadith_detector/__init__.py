@@ -1,4 +1,4 @@
-"""Offline Arabic Hadith detection with bundled or explicitly supplied resources."""
+"""Arabic Hadith matching, offline by default, with optional Jev quotation validation."""
 
 from importlib.metadata import version
 
@@ -6,10 +6,12 @@ from ._convenience import annotate, clear_cache, detect, get_hadith
 from .config import DetectorConfig
 from .detector import HadithDetector
 from .models import (
+    ContextualValidationWarning,
     Detection,
     HadithRecord,
     HadithReference,
     OmittedSourceToken,
+    QuotationValidation,
     SourceOccurrence,
     WordAlignment,
 )
@@ -17,6 +19,7 @@ from .models import (
 __version__ = version("hadith-detector")
 
 __all__ = [
+    "ContextualValidationWarning",
     "__version__",
     "HadithDetector",
     "DetectorConfig",
@@ -30,4 +33,5 @@ __all__ = [
     "Detection",
     "WordAlignment",
     "OmittedSourceToken",
+    "QuotationValidation",
 ]

@@ -1,5 +1,6 @@
 """Lossless plain-text escaping and deterministic HTML fragments."""
 
+import json
 from collections.abc import Sequence
 from html import escape
 
@@ -36,11 +37,15 @@ def render(text: str, detections: Sequence[Detection]) -> str:
         if text[match.start : match.end] != match.text:
             raise ValueError("Annotation span differs from original input text")
         parts.append(_escape(text[cursor : match.start]))
+        metadata = ""
+        if match.validation is not None:
+            encoded = _escape(json.dumps(match.validation.to_dict(), ensure_ascii=True))
+            metadata = f' data-validation="{encoded}"'
         parts.append(
             f'<mark class="hadith-match" data-match-index="{index}" '
             f'data-start="{match.start}" data-end="{match.end}" '
             f'data-errors="{match.errors}" data-missing-words="{match.missing_words}" '
-            f'data-reference-count="{len(match.references)}">'
+            f'data-reference-count="{len(match.references)}"{metadata}>'
         )
         parts.append(_escape(text[match.start : match.end]))
         parts.append("</mark>")

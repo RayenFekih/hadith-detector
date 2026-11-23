@@ -107,7 +107,8 @@ Run the three blocks in order in the same Python session. `detect()` returns **p
 - **Source references** with complete original records, occurrences, offsets, and alignment details.
 - **Multiple detections** within the same paragraph or document.
 - **HTML highlighting** of detected passages using `annotate()`.
-- **Offline and deterministic** operation with a bundled index; no LLM or external service required.
+- **Offline and deterministic by default**, with a bundled index; no external service required.
+- **Optional Jev contextual validation**, with quotation-use scores for detected spans.
 
 ## Configuration
 
@@ -161,6 +162,51 @@ html = annotate("ورد في النص: إنما الأعمال بالنيات و
 
 `annotate()` produces an escaped HTML fragment with matched passages wrapped in `<mark>` elements. It is designed for plain-text input, not for editing an existing HTML document.
 
+## Optional Jev contextual validation
+
+Jev can filter incidental matches after the deterministic detector finds candidate
+spans. It is disabled by default. Enabling it requires an external API key and
+introduces network latency and usage costs; the original detector still works offline.
+
+```python
+import os
+from hadith_detector import HadithDetector
+
+detector = HadithDetector(
+    validation_model="jev",
+    validation_api_key=os.environ["TYPESAFE_API_KEY"],
+    validation_threshold=0.5,
+)
+text = "ورد في النص: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى"
+for match in detector.detect(text):
+    print(match.text, match.validation.quotation_score)
+
+# HTML includes every candidate, even rejected ones, with data-validation JSON.
+html = detector.annotate(text)
+```
+
+`detect()` keeps spans with `quotation_score >= validation_threshold`. One decision
+applies to the entire span and all its references. `annotate()` retains all candidates
+for score inspection and threshold analysis, while preserving its HTML return type.
+Calling both functions makes separate validation requests.
+
+Illustrative validation metadata in a retained detection's `to_dict()`:
+
+```json
+{"validation": {"model": "jev-1.14.0", "quotation_score": 0.92, "threshold": 0.5, "decision": "keep"}}
+```
+
+The score is Jev's returned quotation-use score. It does not measure Hadith
+authenticity, reference correctness, textual similarity, or an established calibrated
+probability of correctness. On API failure, candidates are preserved with a null
+score, `decision="unavailable"`, an error code, and a warning; a failure is never
+treated as a rejection. With Jev disabled, the existing output and HTML are unchanged.
+
+For TunAI, explicitly supply `validation_api_base="https://api.tunai.tn/v1"` and its
+key. No additional dependency is needed. See the
+[Jev guide](docs/jev-validation.md) for provider setup, metadata access from HTML,
+failure handling and batching.
+
 ## Important notes
 
 - **Generic phrases can trigger incidental matches.** For example, a phrase such as `هو عبد الله` may also appear in Hadith records even when it occurs in an unrelated article. Likewise, narration formulas such as `عن النبي صلى الله عليه وسلم قال` may match without being meaningful standalone quotations. Shorter `min_match_words` values increase this risk, and permissive fuzzy budgets can introduce additional matches. **Tune `min_match_words`, `max_errors`, and `max_missing_words` for your text and use case**, especially for long documents; increasing the minimum can reduce short incidental matches but may miss genuine short quotations.
@@ -196,7 +242,7 @@ The library's **code is MIT-licensed**; the underlying Hadith data has separate 
 - [Local MCP server and client configuration](docs/mcp.md)
 - [Matching and fuzzy behavior](docs/fuzzy-runtime.md)
 - [HTML annotation](docs/html-annotation.md)
-- [Evaluation and limitations](docs/phase6-evaluation.md)
+- [Optional Jev contextual validation](docs/jev-validation.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 - [Report a bug or request a feature](https://github.com/RayenFekih/hadith-detector/issues)
