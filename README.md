@@ -169,6 +169,7 @@ spans. It is disabled by default. Enabling it requires an external API key and
 introduces network latency and usage costs; the original detector still works offline.
 
 ```python
+# release-probe: requires-network
 import os
 from hadith_detector import HadithDetector
 

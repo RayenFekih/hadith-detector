@@ -9,6 +9,7 @@ def test_examples_share_state_without_prescribed_names(tmp_path, capsys):
     readme = tmp_path / "README.md"
     readme.write_text(
         "```python\nrenamed_result = [42]\nprint(renamed_result)\n```\n"
+        "```python\n# release-probe: requires-network\nraise AssertionError('live example')\n```\n"
         "```python\nassert renamed_result == [42]\n```\n",
         encoding="utf-8",
     )
