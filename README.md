@@ -5,11 +5,17 @@
 [![Python 3.11–3.14](https://img.shields.io/badge/Python-3.11%E2%80%933.14-3776AB?logo=python&logoColor=white)](https://github.com/RayenFekih/hadith-detector/blob/main/pyproject.toml)
 [![PyPI](https://img.shields.io/pypi/v/hadith-detector.svg)](https://pypi.org/project/hadith-detector/)
 [![CI](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RayenFekih/hadith-detector/actions/workflows/ci.yml)
-[![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](LICENSE)
+[![Code license: MIT](https://img.shields.io/badge/Code_license-MIT-blue.svg)](https://github.com/RayenFekih/hadith-detector/blob/main/LICENSE)
 
 `hadith-detector` is a Python library that finds Arabic passages matching Hadith texts and returns their supporting sources. It works with short quotations or longer documents, supports exact and configurable fuzzy matching, and runs locally without an API key or an internet connection after installation.
 
-The bundled Arabic corpus covers **the Six Books**.
+## New in v0.4.0
+
+- Search **34,153 Arabic records across the Six Books** offline. This release adds Abu Dawud, al-Tirmidhi, al-Nasa’i, and Ibn Majah.
+- Search all six by default or select collections in Python. Use `collections=("bukhari", "muslim")` for the original two-book coverage.
+- Inspect source-supplied grades and their attributed graders where available.
+
+See the [v0.4.0 changelog](https://github.com/RayenFekih/hadith-detector/blob/main/CHANGELOG.md) for details.
 
 ## Installation
 
@@ -40,7 +46,7 @@ The client normally starts this stdio process automatically. It provides
 `detect_hadith`, `annotate_hadith`, and `get_hadith` using the same offline bundled
 corpus. Results are candidate textual matches requiring contextual review; they do
 not establish quotation intent or authenticity. The regular Python installation
-does not require MCP dependencies. See the [MCP guide](docs/mcp.md) for client
+does not require MCP dependencies. See the [MCP guide](https://github.com/RayenFekih/hadith-detector/blob/main/docs/mcp.md) for client
 configuration, schemas, pagination, examples, and interpretation limits.
 
 ### Python
@@ -218,7 +224,7 @@ treated as a rejection. With Jev disabled, the existing output and HTML are unch
 
 For TunAI, explicitly supply `validation_api_base="https://api.tunai.tn/v1"` and its
 key. No additional dependency is needed. See the
-[Jev guide](docs/jev-validation.md) for provider setup, metadata access from HTML,
+[Jev guide](https://github.com/RayenFekih/hadith-detector/blob/main/docs/jev-validation.md) for provider setup, metadata access from HTML,
 failure handling and batching.
 
 ## Important notes
@@ -244,9 +250,9 @@ The package includes **34,153 Arabic Hadith records**:
 
 The Arabic records come from the [QuranLab Hadith dataset on Hugging Face](https://huggingface.co/datasets/quranlab/hadith). Source identifiers, numbering, and grader-attributed annotations are retained. Grades reflect the named source graders.
 
-Python searches all loaded collections by default. Set `HadithDetector(collections=("bukhari", "muslim"))` to default to those two books. A per-call selection, such as `detector.detect(text, collections=("nasai",))`, replaces that default for the call. The same option works with `annotate()` and both module-level functions. See the [collection filtering example and valid IDs](docs/public-api.md#collection-selection).
+Python searches all loaded collections by default. Set `HadithDetector(collections=("bukhari", "muslim"))` to default to those two books. A per-call selection, such as `detector.detect(text, collections=("nasai",))`, replaces that default for the call. The same option works with `annotate()` and both module-level functions. See the [collection filtering example and valid IDs](https://github.com/RayenFekih/hadith-detector/blob/main/docs/public-api.md#collection-selection).
 
-The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
+The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](https://github.com/RayenFekih/hadith-detector/blob/main/tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
 
 ## Use cases
 
@@ -258,13 +264,13 @@ The library's **code is MIT-licensed**; the underlying Hadith data has separate 
 
 ## Documentation and community
 
-- [Public API and result structure](docs/public-api.md)
-- [Local MCP server and client configuration](docs/mcp.md)
-- [Matching and fuzzy behavior](docs/fuzzy-runtime.md)
-- [HTML annotation](docs/html-annotation.md)
-- [Optional Jev contextual validation](docs/jev-validation.md)
+- [Public API and result structure](https://github.com/RayenFekih/hadith-detector/blob/main/docs/public-api.md)
+- [Local MCP server and client configuration](https://github.com/RayenFekih/hadith-detector/blob/main/docs/mcp.md)
+- [Matching and fuzzy behavior](https://github.com/RayenFekih/hadith-detector/blob/main/docs/fuzzy-runtime.md)
+- [HTML annotation](https://github.com/RayenFekih/hadith-detector/blob/main/docs/html-annotation.md)
+- [Optional Jev contextual validation](https://github.com/RayenFekih/hadith-detector/blob/main/docs/jev-validation.md)
 - [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+- [Changelog](https://github.com/RayenFekih/hadith-detector/blob/main/CHANGELOG.md)
 - [Report a bug or request a feature](https://github.com/RayenFekih/hadith-detector/issues)
 
 Contributions, issue reports, reproducible examples, and suggestions for additional Hadith sources are welcome.

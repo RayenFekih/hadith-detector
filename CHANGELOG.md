@@ -3,13 +3,20 @@
 Release notes are maintained manually. Versions use Git tags and 0.x development
 conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## [0.4.0] - Unreleased
+## [0.4.0] - 2026-11-26
 
-- Expanded the offline Arabic corpus to all Six Books. Source grade annotations
-  retain their original grader attribution.
-- Added optional Python collection selection on detector construction and on
-  individual detection and annotation calls. All six collections are searched
-  by default. Pass `collections=("bukhari", "muslim")` to retain two-book coverage.
+### Added
+
+- [Python collection filtering](docs/public-api.md#collection-selection) on detector
+  construction and on individual detection and annotation calls. Pass
+  `collections=("bukhari", "muslim")` to retain two-book coverage.
+
+### Changed
+
+- The offline Arabic corpus now searches all Six Books by default. Added Abu Dawud,
+  al-Tirmidhi, al-Nasa’i, and Ibn Majah, bringing the total to 34,153 records.
+- Source grades in the added collections retain their original grader attribution.
+  See the [grading and provenance review](docs/six-book-acceptance.md).
 
 ## [0.3.0] - 2026-11-23
 
@@ -145,6 +152,8 @@ Initial tagged release. The entries below cover the library's development up to 
 
 - Replaced the unused application scaffold with a supported Python library.
 
-[0.2.0]: https://github.com/RayenFekih/hadith-detector/compare/v0.1.1...HEAD
+[0.4.0]: https://github.com/RayenFekih/hadith-detector/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/RayenFekih/hadith-detector/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/RayenFekih/hadith-detector/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/RayenFekih/hadith-detector/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/RayenFekih/hadith-detector/releases/tag/v0.1.0

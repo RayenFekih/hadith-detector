@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hadith-detector"
 dynamic = ["version"]
-description = "Deterministic offline Arabic textual matching against Sahih Bukhari and Sahih Muslim"
+description = "Offline Arabic Hadith detection and source matching across the Six Books"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
