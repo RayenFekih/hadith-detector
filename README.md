@@ -98,7 +98,20 @@ print("Annotated HTML:", html)
 
 Run the three blocks in order in the same Python session. `detect()` returns **passages in the input**, not a single Hadith classification. `match.start` is inclusive and `match.end` is exclusive, so `text[match.start:match.end]` reproduces the matched text. Each passage may have multiple supporting source records; the example prints only the first match and its first reference. `annotate()` returns an escaped HTML fragment containing `<mark>` tags.
 
-**Check what was actually matched.** A matching phrase may be an incidental attribution formula rather than the quotation you intended. The threshold of `9` reduces some short matches but does not filter generic phrases automatically; always review the returned passage and source. When pasting Arabic code into Windows PowerShell, save it as a UTF-8 `.py` file instead of piping the code through standard input to avoid character corruption.
+## Results and source preservation
+
+`detect()` returns a list of `Detection` objects, or an empty list when no passage matches. Use `matches[0].to_dict()` to inspect the first result as a dictionary when a match exists.
+
+| Model | Fields |
+|---|---|
+| `Detection` | `start`, `end`, `text`, `matched_words`, `references`, `errors`, `missing_words`, optional `validation` when Jev is enabled |
+| `HadithReference` | `record`, `occurrences` |
+| `SourceOccurrence` | `start`, `end`, `text`, `errors`, `missing_words`, `alignment`, `omitted_source_tokens` |
+| `WordAlignment` | `input_token`, `source_token`, `input_start`, `input_end`, `source_start`, `source_end`, `errors` |
+| `OmittedSourceToken` | `source_token`, `start`, `end`, `text`, `term` |
+| `HadithRecord` | Original identity, numbering, language, collection, text, grades and nullable URL fields, plus `additional_metadata` for unknown source fields |
+
+**Check what was actually matched.** A matching phrase may be an incidental attribution formula rather than the quotation you intended. The threshold of `9` reduces some short matches but does not filter generic phrases automatically; always review the returned passage and source. When pasting Arabic code into Windows PowerShell, save it as a UTF-8 `.py` file instead of piping it through standard input to avoid character corruption.
 
 ## Features
 
