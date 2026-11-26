@@ -3,7 +3,15 @@
 Release notes are maintained manually. Versions use Git tags and 0.x development
 conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## [0.3.0] - Unreleased
+## [0.4.0] - Unreleased
+
+- Expanded the offline Arabic corpus to all Six Books. Source grade annotations
+  retain their original grader attribution.
+- Added optional Python collection selection on detector construction and on
+  individual detection and annotation calls. All six collections are searched
+  by default. Pass `collections=("bukhari", "muslim")` to retain two-book coverage.
+
+## [0.3.0] - 2026-11-23
 
 ### Added
 

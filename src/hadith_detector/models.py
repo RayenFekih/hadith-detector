@@ -91,8 +91,18 @@ class HadithRecord:
     @classmethod
     def _from_source(cls, source: dict[str, Any]) -> HadithRecord:
         names = {f.name for f in fields(cls)} - {"additional_metadata"}
+        # Validated source fields other than grades contain only immutable scalars.
+        values = {name: source[name] for name in names}
+        values["grades"] = [
+            grade.copy()
+            if len(grade) == 2
+            and type(grade.get("grader")) is str
+            and type(grade.get("grade")) is str
+            else deepcopy(grade)
+            for grade in source["grades"]
+        ]
         return cls(
-            **{name: deepcopy(source[name]) for name in names},
+            **values,
             additional_metadata={k: deepcopy(v) for k, v in source.items() if k not in names},
         )
 

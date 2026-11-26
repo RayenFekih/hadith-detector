@@ -32,7 +32,7 @@ jobs:
       - name: Validate and rebuild the candidate sdist offline
         run: |
           uv pip install setuptools==84.0.0 setuptools-scm==10.3.4 vcs-versioning==2.6.0
-          uv run --offline --frozen python -m tools.release_artifacts --dist-dir dist --rebuild-dir .cache/release-rebuild
+          uv run --offline --frozen python -m tools.release_artifacts --dist-dir dist --rebuild-dir .cache/release-rebuild --report .cache/release-artifacts.json
           uv run --frozen twine check .cache/release-rebuild/*.whl
       - uses: actions/upload-artifact@v4
         with:
@@ -41,7 +41,7 @@ jobs:
           path: |
             dist/*
             .cache/release-rebuild/*.whl
-            data/release-artifacts.json
+            .cache/release-artifacts.json
           retention-days: 14
 
   installed:

@@ -58,6 +58,7 @@ def check(artifacts: Path, output: Path):
                 str(ROOT / "README.md"),
                 "--expectations",
                 str(ROOT / "tools/release-cases.json"),
+                "--baseline-two-books",
                 "--output",
                 str((output / f"probe-{i}.json").resolve()),
             ],

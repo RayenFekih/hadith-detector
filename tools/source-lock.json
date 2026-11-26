@@ -1,16 +1,40 @@
 {
   "configs": [
     {
+      "collection": "abudawud",
+      "expected_records": 5272,
+      "name": "abudawud-ar",
+      "path": "abudawud-ar/train-00000-of-00001.parquet"
+    },
+    {
       "collection": "bukhari",
       "expected_records": 7580,
       "name": "bukhari-ar",
       "path": "bukhari-ar/train-00000-of-00001.parquet"
     },
     {
+      "collection": "ibnmajah",
+      "expected_records": 4338,
+      "name": "ibnmajah-ar",
+      "path": "ibnmajah-ar/train-00000-of-00001.parquet"
+    },
+    {
       "collection": "muslim",
       "expected_records": 7360,
       "name": "muslim-ar",
       "path": "muslim-ar/train-00000-of-00001.parquet"
+    },
+    {
+      "collection": "nasai",
+      "expected_records": 5679,
+      "name": "nasai-ar",
+      "path": "nasai-ar/train-00000-of-00001.parquet"
+    },
+    {
+      "collection": "tirmidhi",
+      "expected_records": 3924,
+      "name": "tirmidhi-ar",
+      "path": "tirmidhi-ar/train-00000-of-00001.parquet"
     }
   ],
   "files": [
@@ -41,6 +65,22 @@
     {
       "path": "metadata/collections.csv",
       "sha256": "806aef24f330464c3b9bb0f2526ed1f962d12c6edecc8d0047633c324189f11b"
+    },
+    {
+      "path": "abudawud-ar/train-00000-of-00001.parquet",
+      "sha256": "bfa4723b34bd395fe4782ca066e19398942ccfce3a9c0aedfa6da05a92c78f8a"
+    },
+    {
+      "path": "ibnmajah-ar/train-00000-of-00001.parquet",
+      "sha256": "f01d56cc77701a0780c3517d74d8d28dff6ff108007746d555cc4fac26401e24"
+    },
+    {
+      "path": "nasai-ar/train-00000-of-00001.parquet",
+      "sha256": "5b41a56ad3126425eea07c11cff569ad5dd5a3a734a92a876836966c38997d46"
+    },
+    {
+      "path": "tirmidhi-ar/train-00000-of-00001.parquet",
+      "sha256": "8eacd7c3288e21706f3bf987694ba83a7cb7030453582f029131908d0917fab1"
     }
   ],
   "lock_version": 1,

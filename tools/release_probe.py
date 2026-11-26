@@ -38,11 +38,42 @@ def run_readme(path: Path) -> int:
     return len(examples)
 
 
+def check_six_books(detector):
+    # Manually selected Arabic source excerpts with externally assigned QuranLab keys.
+    excerpts = (
+        ("abudawud:1", "حدثنا عبد الله بن مسلمة بن قعنب القعنبي حدثنا"),
+        ("ibnmajah:1", "حدثنا أبو بكر بن أبي شيبة قال حدثنا شريك"),
+        ("nasai:1", "أخبرنا قتيبة بن سعيد قال حدثنا سفيان عن الزهري"),
+        ("tirmidhi:1", "حدثنا قتيبة بن سعيد حدثنا أبو عوانة عن سماك"),
+    )
+    checked = 0
+    for key, excerpt in excerpts:
+        variants = (
+            (excerpt, {}),
+            (excerpt[:-1] + "ظ", {"max_errors": 1}),
+            (" ".join(excerpt.split()[:3] + excerpt.split()[4:]), {"max_missing_words": 1}),
+        )
+        for text, budgets in variants:
+            query = "🙂 " + text + "!"
+            (match,) = detector.detect(query, min_match_words=len(text.split()), **budgets)
+            assert (match.start, match.end, match.text) == (2, 2 + len(text), text), key
+            assert key in {reference.record.hadith_key for reference in match.references}, key
+            checked += 1
+    overlap = "إنما الأعمال بالنيات وإنما لكل امرئ ما نوى"
+    (match,) = detector.detect(overlap, min_match_words=5)
+    assert "bukhari:1" in {reference.record.hadith_key for reference in match.references}
+    assert len({reference.record.collection for reference in match.references}) > 1
+    assert not detector.detect("تدور الكواكب الصخرية حول نجوم بعيدة في مجرة أخرى")
+    assert not detector.detect("عن النبي صلى الله عليه وسلم قال", min_match_words=9)
+    return checked + 3
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--readme", type=Path, required=True)
     parser.add_argument("--expectations", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--baseline-two-books", action="store_true")
     args = parser.parse_args()
 
     def forbidden(*args, **kwargs):
@@ -83,8 +114,9 @@ def main():
     initialization_seconds = time.perf_counter() - started
     assert detector.index_dir == bundle
     checked = 0
+    scope = {"collections": ("bukhari", "muslim")} if args.baseline_two_books else {}
     for case in cases["cases"]:
-        results = detector.detect(case["text"], **case["settings"])
+        results = detector.detect(case["text"], **case["settings"], **scope)
         data = [r.to_dict() for r in results]
         assert hashlib.sha256(canonical(data)).hexdigest() == case["sha256"], case["id"]
         for result in results:
@@ -94,6 +126,7 @@ def main():
                 for occurrence in reference.occurrences:
                     assert source.text[occurrence.start : occurrence.end] == occurrence.text
         checked += 1
+    expanded_cases = check_six_books(detector) if args.baseline_two_books else 0
     explicit = hd.HadithDetector.from_directory(bundle)
     query = cases["cases"][0]
     assert explicit.detect(query["text"], **query["settings"]) == detector.detect(
@@ -114,6 +147,7 @@ def main():
         "import_seconds": import_seconds,
         "initialization_seconds": initialization_seconds,
         "saved_expectation_cases": checked,
+        "six_book_acceptance_cases": expanded_cases,
         "readme_examples": example_count,
         "resource_files": len(original),
         "installed_package_bytes": sum(p.stat().st_size for p in root.rglob("*") if p.is_file()),

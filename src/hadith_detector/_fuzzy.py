@@ -100,6 +100,7 @@ class FuzzyMatcher:
         minimum: int,
         errors: int,
         missing: int,
+        allowed_records: frozenset[int] | None = None,
     ) -> set[tuple[int, int]]:
         data = self.data
         if minimum <= errors:
@@ -119,6 +120,8 @@ class FuzzyMatcher:
             for i in range(offset, offset + count):
                 packed = data.unigram_postings[i]
                 rid, position = packed >> 32, packed & MAX_U32
+                if allowed_records is not None and rid not in allowed_records:
+                    continue
                 base = position - (anchor - qa)
                 for skipped in range(min(missing, base) + 1):
                     result.add((rid, base - skipped))
@@ -220,6 +223,7 @@ class FuzzyMatcher:
         minimum: int,
         errors: int,
         missing: int,
+        allowed_records: frozenset[int] | None = None,
     ) -> list[Detection]:
         query = query_sequence(tokens, self.data.vocabulary)
         ends = segment_ends(query)
@@ -227,7 +231,9 @@ class FuzzyMatcher:
         for qa in range(len(tokens) - minimum + 1):
             if not query.boundary(qa) or not query.window(qa, minimum):
                 continue
-            for rid, sa in self.starts(tokens, query, qa, minimum, errors, missing):
+            for rid, sa in self.starts(
+                tokens, query, qa, minimum, errors, missing, allowed_records
+            ):
                 for qb, _, cost, omissions, _ in self.verify(
                     tokens, query, qa, rid, sa, minimum, errors, missing, ends[qa], False
                 ):
@@ -252,7 +258,9 @@ class FuzzyMatcher:
         output = []
         for qa, qb in sorted(selected):
             occurrences: dict[int, dict[tuple[int, int], SourceOccurrence]] = defaultdict(dict)
-            for rid, sa in self.starts(tokens, query, qa, qb - qa, errors, missing):
+            for rid, sa in self.starts(
+                tokens, query, qa, qb - qa, errors, missing, allowed_records
+            ):
                 for end, sb, cost, omissions, path in self.verify(
                     tokens, query, qa, rid, sa, qb - qa, errors, missing, qb, True
                 ):

@@ -9,7 +9,7 @@
 
 `hadith-detector` is a Python library that finds Arabic passages matching Hadith texts and returns their supporting sources. It works with short quotations or longer documents, supports exact and configurable fuzzy matching, and runs locally without an API key or an internet connection after installation.
 
-The current bundled corpus covers **Sahih al-Bukhari and Sahih Muslim**. Support for additional Hadith collections is planned.
+The bundled Arabic corpus covers **the Six Books**.
 
 ## Installation
 
@@ -213,19 +213,25 @@ failure handling and batching.
 - **Generic phrases can trigger incidental matches.** For example, a phrase such as `هو عبد الله` may also appear in Hadith records even when it occurs in an unrelated article. Likewise, narration formulas such as `عن النبي صلى الله عليه وسلم قال` may match without being meaningful standalone quotations. Shorter `min_match_words` values increase this risk, and permissive fuzzy budgets can introduce additional matches. **Tune `min_match_words`, `max_errors`, and `max_missing_words` for your text and use case**, especially for long documents; increasing the minimum can reduce short incidental matches but may miss genuine short quotations.
 - **A match means textual support, not quotation intent.** Common expressions, honorifics, Quranic wording embedded in narrations, and narrator-chain fragments can also match. Do not automatically treat every detection as a deliberate Hadith quotation.
 - **Review citations and source context.** Before publishing religious content or relying on the returned citation, inspect the original narration, relevant supporting occurrences, and data provenance. The library does not independently authenticate Hadith or interpret their meaning.
-- **No match does not mean no Hadith exists.** Coverage is currently limited to the bundled Sahihayn collection, and configured matching thresholds may exclude short or modified quotations.
+- **No match does not mean no Hadith exists.** Results depend on the collections searched and the configured matching thresholds.
 - **The dataset is preserved as supplied.** Source data can include duplicate narration texts, missing URLs, or damaged characters. Check that it meets your application’s accuracy and provenance requirements.
 
 ## Data
 
-The package currently includes **14,940 Arabic Hadith records**:
+The package includes **34,153 Arabic Hadith records**:
 
 | Collection | Records |
 | --- | ---: |
 | Sahih al-Bukhari | 7,580 |
 | Sahih Muslim | 7,360 |
+| Sunan Abi Dawud | 5,272 |
+| Jami’ al-Tirmidhi | 3,924 |
+| Sunan al-Nasa’i (al-Mujtaba) | 5,679 |
+| Sunan Ibn Majah | 4,338 |
 
-The data comes from the [QuranLab Hadith dataset on Hugging Face](https://huggingface.co/datasets/quranlab/hadith), using its `bukhari-ar` and `muslim-ar` configurations. Original Arabic records, source identities, and accompanying metadata are retained. **Additional Hadith books are planned for future versions.**
+The Arabic records come from the [QuranLab Hadith dataset on Hugging Face](https://huggingface.co/datasets/quranlab/hadith). Source identifiers, numbering, and grader-attributed annotations are retained. Grades reflect the named source graders.
+
+Python searches all loaded collections by default. Set `HadithDetector(collections=("bukhari", "muslim"))` to default to those two books. A per-call selection, such as `detector.detect(text, collections=("nasai",))`, replaces that default for the call. The same option works with `annotate()` and both module-level functions. See the [collection filtering example and valid IDs](docs/public-api.md#collection-selection).
 
 The library's **code is MIT-licensed**; the underlying Hadith data has separate source terms and notices. Consult the [dataset provenance and redistribution notes](tools/bundle-notices/PROVENANCE.md) before reusing or redistributing the data independently.
 

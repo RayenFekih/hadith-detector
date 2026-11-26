@@ -1,5 +1,6 @@
 """One synchronized, lazily populated convenience detector cache."""
 
+from collections.abc import Collection
 from pathlib import Path
 from threading import RLock
 
@@ -38,6 +39,7 @@ def detect(
     min_match_words: int | None = None,
     max_errors: int | None = None,
     max_missing_words: int | None = None,
+    collections: Collection[str] | None = None,
     validation_model: str | None = None,
     validation_api_key: str | None = None,
     validation_api_base: str | None = None,
@@ -57,6 +59,7 @@ def detect(
         min_match_words=effective.min_match_words,
         max_errors=effective.max_errors,
         max_missing_words=effective.max_missing_words,
+        collections=collections,
     )
     return _accepted(validator.evaluate(text, matches)) if validator is not None else matches
 
@@ -70,6 +73,7 @@ def annotate(
     min_match_words: int | None = None,
     max_errors: int | None = None,
     max_missing_words: int | None = None,
+    collections: Collection[str] | None = None,
     validation_model: str | None = None,
     validation_api_key: str | None = None,
     validation_api_base: str | None = None,
@@ -91,6 +95,7 @@ def annotate(
             min_match_words=effective.min_match_words,
             max_errors=effective.max_errors,
             max_missing_words=effective.max_missing_words,
+            collections=collections,
         )
         return render(text, validator.evaluate(text, matches))
     return _detector(index_dir).annotate(
@@ -99,6 +104,7 @@ def annotate(
         min_match_words=effective.min_match_words,
         max_errors=effective.max_errors,
         max_missing_words=effective.max_missing_words,
+        collections=collections,
     )
 
 

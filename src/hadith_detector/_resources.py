@@ -127,15 +127,17 @@ class Sequence:
         return len(self.terms)
 
     def boundary(self, position: int) -> bool:
-        return position in (0, len(self)) or bool(
-            (self.starts[position - 1], self.ends[position - 1])
-            != (self.starts[position], self.ends[position])
+        return (
+            position == 0
+            or position == len(self.terms)
+            or self.starts[position - 1] != self.starts[position]
+            or self.ends[position - 1] != self.ends[position]
         )
 
     def window(self, start: int, size: int) -> bool:
         end = start + size
         return bool(
-            0 <= start < end <= len(self) and self.segments[start] == self.segments[end - 1]
+            0 <= start < end <= len(self.terms) and self.segments[start] == self.segments[end - 1]
         )
 
 

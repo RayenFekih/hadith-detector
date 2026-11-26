@@ -1,8 +1,9 @@
 # Bundled distributions and release readiness
 
-Phase 7 prepares candidates for review. It does not create a release, tag, push,
-upload to PyPI, or claim a published version. `v0.1.0` remains reserved for the
-approved first release; untagged builds retain setuptools-scm development versions.
+The release-readiness workflow prepares candidates for maintainer review.
+Use a version tag to build publication artifacts. Untagged builds retain
+setuptools-scm development versions. See the [v0.4.0 acceptance and redistribution
+review](six-book-acceptance.md) before approving publication.
 
 ## Install a candidate
 
@@ -62,7 +63,7 @@ offline (`setuptools>=80`, `setuptools-scm>=8`, plus the locked development grou
 This changes the checking environment, not installed runtime requirements.
 
 ```sh
-python -m tools.release_artifacts --dist-dir dist --rebuild-dir .cache/release-rebuild
+python -m tools.release_artifacts --dist-dir dist --rebuild-dir .cache/release-rebuild --report .cache/release-artifacts.json
 python -m tools.release_install --artifacts-dir .cache/candidates --output-dir .cache/installed-checks
 ```
 
@@ -76,7 +77,7 @@ It records Python/platform, import/init timings, installed size and unchanged re
 hashes. The probe covers saved evidence from exact and all three controlled fuzzy
 types; it does not repeat the historical evaluation or performance suite.
 
-The artifact checker verifies sizes below the default PyPI 100 MB/file limit,
+The artifact checker verifies sizes below the v0.4.0 limit of 60 MB per file,
 notices, payloads and metadata. It rebuilds the sdist wheel without Git and without
 dependency resolution/network access, then compares runtime contents and versions.
 Dependency-wheel acquisition and initial isolated build preparation may use network;
@@ -99,11 +100,12 @@ Before publication, review:
 - Exact source record counts, payload hashes, index v2/normalization v1 and offline checks.
 - Actual wheel/sdist sizes, metadata, Git-free version recovery and eight matrix results.
 - README draft, executable Arabic examples, configuration guidance and qualified evaluation.
-- Candidate checksums and [Phase 7 validation report](phase7-validation.md).
+- Candidate checksums, the tagged workflow results, and the
+  [v0.4.0 acceptance review](six-book-acceptance.md).
 - Explicit approval of release version, ordinary commits/pushes, release tag and publication.
 
 Only after those separate approvals should a maintainer build from the approved tag,
 repeat candidate checks on those exact tagged artifacts, and run publication commands
-such as `python -m twine upload dist/*`. No credentials, publisher configuration,
-publishing workflow or automatic publication is introduced in this phase. PyPI/wheel
-badges and public `pip install hadith-detector` instructions follow actual publication.
+such as `python -m twine upload <verified-wheel> <verified-sdist>`. Upload the
+original wheel and the source archive from the tagged run. Verify the public
+hashes and run a smoke test from a clean PyPI installation after upload.

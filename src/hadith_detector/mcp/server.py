@@ -10,8 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from hadith_detector import DetectorConfig, HadithDetector, SourceOccurrence
 
-INSTRUCTIONS = """Hadith Detector finds candidate textual matches in bundled Sahih al-Bukhari
-and Sahih Muslim records. A match is not a verified contextual quotation. Examine surrounding
+INSTRUCTIONS = """Hadith Detector finds candidate textual matches in the bundled Arabic Six Books.
+A match is not a verified contextual quotation. Examine surrounding
 context; distinguish Hadith wording from narrator chains, generic religious expressions,
 Quranic quotations, blessings, and paraphrases. Retrieve and inspect supporting records with
 get_hadith before presenting citations. Acknowledge differences between input and source
