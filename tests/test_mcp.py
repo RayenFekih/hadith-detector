@@ -166,35 +166,50 @@ def test_pagination_preserves_all_evidence(detector):
 
 
 def test_match_and_occurrence_pagination(tmp_path):
-    index, _ = build_fixture(tmp_path, [PHRASE + " ! " + PHRASE])
+    collections = ["abudawud", "bukhari", "ibnmajah", "muslim", "nasai", "tirmidhi"]
+    index, _ = build_fixture(tmp_path, [PHRASE + " ! " + PHRASE] * 6, collections)
     detector = HadithDetector.from_directory(index)
     text = PHRASE + " شيءمختلف " + PHRASE
 
     async def exercise():
         async with create_connected_server_and_client_session(create_server(detector)) as client:
+            expected = detector.detect(text)
             for match_offset in range(2):
                 for occurrence_offset in range(2):
-                    response = await client.call_tool(
-                        "detect_hadith",
-                        {
-                            "text": text,
-                            "match_offset": match_offset,
-                            "match_limit": 1,
-                            "occurrence_offset": occurrence_offset,
-                            "occurrence_limit": 1,
-                        },
-                    )
-                    data = response.structuredContent
-                    assert data["total_matches"] == 2
-                    assert data["truncated"]
-                    assert data["next_match_offset"] == (1 if match_offset == 0 else None)
-                    ref = data["matches"][0]["references"][0]
-                    assert ref["total_occurrences"] == 2
-                    assert ref["next_occurrence_offset"] == (1 if occurrence_offset == 0 else None)
-                    original = detector.detect(text)[match_offset]
-                    assert ref["occurrences"] == [
-                        original.references[0].occurrences[occurrence_offset].to_dict()
-                    ]
+                    references = []
+                    for reference_offset in (0, 2, 4):
+                        response = await client.call_tool(
+                            "detect_hadith",
+                            {
+                                "text": text,
+                                "match_offset": match_offset,
+                                "match_limit": 1,
+                                "reference_offset": reference_offset,
+                                "reference_limit": 2,
+                                "occurrence_offset": occurrence_offset,
+                                "occurrence_limit": 1,
+                            },
+                        )
+                        data = response.structuredContent
+                        assert data["total_matches"] == 2
+                        assert data["truncated"]
+                        assert data["next_match_offset"] == (1 if match_offset == 0 else None)
+                        match = data["matches"][0]
+                        assert match["total_references"] == 6
+                        assert match["next_reference_offset"] == (
+                            reference_offset + 2 if reference_offset < 4 else None
+                        )
+                        references.extend(match["references"])
+                    original = expected[match_offset]
+                    for ref, source in zip(references, original.references, strict=True):
+                        assert ref["hadith_key"] == source.record.hadith_key
+                        assert ref["total_occurrences"] == 2
+                        assert ref["next_occurrence_offset"] == (
+                            1 if occurrence_offset == 0 else None
+                        )
+                        assert ref["occurrences"] == [
+                            source.occurrences[occurrence_offset].to_dict()
+                        ]
 
     asyncio.run(exercise())
 

@@ -209,6 +209,18 @@ def test_dictionary_json_roundtrips_and_isolation(directory):
     payload["references"][0]["record"]["extra"]["values"].clear()
     assert other.references[0].record == result.references[0].record
 
+    record = result.references[0].record.to_dict()
+    record["grades"] = [
+        {"grader": "A", "grade": "label"},
+        {"grader": "B", "grade": "label", "notes": ["source"]},
+    ]
+    record["n_grades"] = 2
+    snapshot = HadithRecord.from_dict(record)
+    record["grades"][0]["grade"] = "changed"
+    record["grades"][1]["notes"].clear()
+    assert snapshot.grades[0]["grade"] == "label"
+    assert snapshot.grades[1]["notes"] == ["source"]
+
 
 def test_omissions_symbols_and_default_traces(tmp_path):
     directory, _ = build_fixture(tmp_path, ["قال ﷺ ثم ذهب", "عن نافع عن ابن عمر"])

@@ -50,7 +50,7 @@ def validate(dist, rebuild):
     lock = json.loads((ROOT / "src/hadith_detector/_bundle.json").read_text(encoding="utf-8"))
     wheel = next(dist.glob("*.whl"))
     sdist = next(dist.glob("*.tar.gz"))
-    assert all(p.stat().st_size < 100_000_000 for p in (wheel, sdist))
+    assert all(p.stat().st_size < 60_000_000 for p in (wheel, sdist))
     original = inspect(wheel, lock)
     rebuild.mkdir(parents=True, exist_ok=False)
     source = rebuild / "source"

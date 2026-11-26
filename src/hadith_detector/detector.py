@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
 from pathlib import Path
 from threading import RLock
 from typing import TYPE_CHECKING
@@ -58,13 +58,23 @@ def _accepted(matches: list[Detection]) -> list[Detection]:
 class HadithDetector:
     """Exact/fuzzy matching with optional remote quotation validation."""
 
-    __slots__ = ("_resources", "_fuzzy", "_config", "_index_dir", "_lock", "_validator")
+    __slots__ = (
+        "_resources",
+        "_fuzzy",
+        "_config",
+        "_index_dir",
+        "_lock",
+        "_validator",
+        "_collection_records",
+        "_default_records",
+    )
 
     def __init__(
         self,
         index_dir: str | Path | None = None,
         config: DetectorConfig | None = None,
         *,
+        collections: Collection[str] | None = None,
         validation_model: str | None = None,
         validation_api_key: str | None = None,
         validation_api_base: str | None = None,
@@ -91,6 +101,26 @@ class HadithDetector:
                 raise OSError(message) from exc
             raise ValueError(message) from exc
         self._fuzzy: FuzzyMatcher | None = None
+        self._collection_records: dict[str, list[int]] = defaultdict(list)
+        for rid, record in enumerate(self._resources.records):
+            self._collection_records[record["collection"]].append(rid)
+        self._default_records = self._select_records(collections)
+
+    def _select_records(self, collections: Collection[str] | None) -> frozenset[int] | None:
+        if collections is None:
+            return None
+        if isinstance(collections, (str, bytes)) or not isinstance(collections, Collection):
+            raise ValueError("collections must be a nonempty collection of collection IDs")
+        selected = tuple(collections)
+        if not selected or any(not isinstance(name, str) for name in selected):
+            raise ValueError("collections must be a nonempty collection of collection IDs")
+        names = set(selected)
+        unknown = names - self._collection_records.keys()
+        if unknown:
+            raise ValueError(f"Unknown collection IDs: {', '.join(sorted(unknown))}")
+        if names == self._collection_records.keys():
+            return None
+        return frozenset(rid for name in names for rid in self._collection_records[name])
 
     @property
     def config(self) -> DetectorConfig:
@@ -108,6 +138,7 @@ class HadithDetector:
         index_dir: str | Path,
         config: DetectorConfig | None = None,
         *,
+        collections: Collection[str] | None = None,
         validation_model: str | None = None,
         validation_api_key: str | None = None,
         validation_api_base: str | None = None,
@@ -119,6 +150,7 @@ class HadithDetector:
         return cls(
             index_dir,
             config,
+            collections=collections,
             validation_model=validation_model,
             validation_api_key=validation_api_key,
             validation_api_base=validation_api_base,
@@ -140,15 +172,21 @@ class HadithDetector:
         min_match_words: int | None = None,
         max_errors: int | None = None,
         max_missing_words: int | None = None,
+        collections: Collection[str] | None = None,
     ) -> list[Detection]:
         """Detect passages; optional Jev filtering retains unavailable-score candidates."""
-        matches = self._matches(text, min_match_words, max_errors, max_missing_words)
+        matches = self._matches(text, min_match_words, max_errors, max_missing_words, collections)
         if self._validator is not None:
             return _accepted(self._validator.evaluate(text, matches))
         return matches
 
     def _matches(
-        self, text: str, minimum: int | None, errors: int | None, missing: int | None
+        self,
+        text: str,
+        minimum: int | None,
+        errors: int | None,
+        missing: int | None,
+        collections: Collection[str] | None = None,
     ) -> list[Detection]:
         with self._lock:
             config = self.config._override(minimum, errors, missing)
@@ -157,6 +195,11 @@ class HadithDetector:
                 min_match_words=config.min_match_words,
                 max_errors=config.max_errors,
                 max_missing_words=config.max_missing_words,
+                allowed_records=(
+                    self._default_records
+                    if collections is None
+                    else self._select_records(collections)
+                ),
             )
 
     def annotate(
@@ -167,6 +210,7 @@ class HadithDetector:
         min_match_words: int | None = None,
         max_errors: int | None = None,
         max_missing_words: int | None = None,
+        collections: Collection[str] | None = None,
     ) -> str:
         """Escape plain text and highlight original detected spans in an HTML fragment.
 
@@ -178,7 +222,9 @@ class HadithDetector:
         """
         validate(text, format)
         if self._validator is not None:
-            matches = self._matches(text, min_match_words, max_errors, max_missing_words)
+            matches = self._matches(
+                text, min_match_words, max_errors, max_missing_words, collections
+            )
             return render(text, self._validator.evaluate(text, matches))
         with self._lock:
             matches = self.detect(
@@ -186,10 +232,11 @@ class HadithDetector:
                 min_match_words=min_match_words,
                 max_errors=max_errors,
                 max_missing_words=max_missing_words,
+                collections=collections,
             )
             return render(text, matches)
 
-    def _seeds(self, query: Sequence, minimum: int) -> Iterator[tuple[int, int, int]]:
+    def _seeds(self, query: Sequence, minimum: int) -> Iterator[tuple[int, memoryview, int, int]]:
         data = self._resources
         width = 3 if minimum >= 3 else 1
         for start in range(len(query) - minimum + 1):
@@ -218,10 +265,11 @@ class HadithDetector:
                     best = choice
             if best is not None:
                 count, anchor, offset = best
+                words = query.terms[start : start + minimum]
                 postings = data.trigram_postings if width == 3 else data.unigram_postings
                 for position in range(offset, offset + count):
                     packed = postings[position]
-                    yield start, packed >> 32, (packed & MAX_U32) - (anchor - start)
+                    yield start, words, packed >> 32, (packed & MAX_U32) - (anchor - start)
 
     def _detect(
         self,
@@ -230,6 +278,7 @@ class HadithDetector:
         min_match_words: int = 5,
         max_errors: int = 0,
         max_missing_words: int = 0,
+        allowed_records: frozenset[int] | None = None,
     ) -> list[Detection]:
         """Detect ordered normalized substrings and every supporting source occurrence.
 
@@ -251,18 +300,22 @@ class HadithDetector:
         if max_errors or max_missing_words:
             if self._fuzzy is None:
                 self._fuzzy = FuzzyMatcher(self._resources)
-            return self._fuzzy.detect(text, tokens, minimum, max_errors, max_missing_words)
+            return self._fuzzy.detect(
+                text, tokens, minimum, max_errors, max_missing_words, allowed_records
+            )
         query = query_sequence(tokens, self._resources.vocabulary)
         runs: set[Run] = set()
         covered: dict[tuple[int, int], int] = {}
-        for qi, rid, si in self._seeds(query, minimum):
+        for qi, words, rid, si in self._seeds(query, minimum):
+            if allowed_records is not None and rid not in allowed_records:
+                continue
             source = self._resources.sequences[rid]
             if not source.window(si, minimum):
                 continue
             diagonal = rid, qi - si
             if qi < covered.get(diagonal, -1):
                 continue
-            if query.terms[qi : qi + minimum] != source.terms[si : si + minimum]:
+            if words != source.terms[si : si + minimum]:
                 continue
             qa, qb, sa, sb = qi, qi + minimum, si, si + minimum
             while (
@@ -311,6 +364,8 @@ class HadithDetector:
                     continue
                 source = self._resources.sequences[rid]
                 for left, right in ((qa, min(qb, start)), (max(qa, end), qb)):
+                    if right - left < minimum:
+                        continue
                     run = _trim(query, source, left, right, rid, sa + left - qa, sa + right - qa)
                     if run[1] - run[0] >= minimum:
                         remaining.add(run)

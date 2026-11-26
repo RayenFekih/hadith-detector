@@ -226,7 +226,7 @@ records before presenting citations. Distinguish actual Hadith wording from
 narrator chains, generic religious expressions, Quranic wording embedded in
 narrations, blessings, and paraphrases. Explain wording differences and preserve
 uncertainty when review is inconclusive. No detection does not prove absence:
-coverage is limited to the bundled Sahihayn corpus and the configured thresholds.
+coverage depends on the bundled Arabic Six Books and the configured thresholds.
 Qualified human review remains necessary for religious and consequential uses.
 
 The server conveys these limits in initialization instructions, tool descriptions,

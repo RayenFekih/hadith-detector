@@ -1,25 +1,25 @@
 {
   "artifacts": {
-    "record-offsets.bin": "5ff1228d1d7cc82df5baa6853b510dca8d0897e165217d4df9bf3a26f16f32d1",
-    "records.jsonl": "9ec8e19aaab80ffbc01aa162122060099bc0a5de3841b544b4afa1c381414246",
-    "tokens.bin": "3488e5e47e5a91d42c2f84ba14560cf673e134081aea52a6ab28f08fdda2d317",
-    "trigram-offsets.bin": "c7edf613d74f00c806eafea7f0a6fd3f7dcd916c094f2c210d88b8380d6cbf6b",
-    "trigram-postings.bin": "0a246cc840d7fad97945ca2164545c72ad59a35245d87cb6aa7359fd6bea21cf",
-    "trigrams.marisa": "9bb9eae9fc858f7a5ed9a6675035f407b77f9c561e9cfd441cbcf0b14b49518e",
-    "unigram-offsets.bin": "3e8f5dc282137fc6f418f6bc33e2b0dbe987d860b4ffc5761944432a5f3f5d01",
-    "unigram-postings.bin": "752a095ec3f92dddbc90a751c6ed295f5b363035f76ba6479098d13750381b8a",
-    "vocabulary.marisa": "faf3d4b7d5d9952e5ea3823d305d29e46d4fcc1a6f52751cdada81a529c655cc"
+    "record-offsets.bin": "359d98f1e67b051508734b8f25423fb312b311c8b677beb670a4a4503a7dfe72",
+    "records.jsonl": "15db8cef5c2070c047c9743977e5847392daca8ac80d4581a93612a9ff19c5b0",
+    "tokens.bin": "8b02fc28ca3848de0b26c3281c0794e2c60126e7011cbe9436c5cab8559bab29",
+    "trigram-offsets.bin": "2876f409997bfb073f6009cd2dc6208f2e4e652b78bbb7e8fef40518d80b1275",
+    "trigram-postings.bin": "72de8f5f54c2765d6a5a3b4534cf049e2851a6ef80bdd5ad20752a587c02cdba",
+    "trigrams.marisa": "983664688bfc430bf92f580c7aed6da66ad9ba0c2010c9631791055e98982230",
+    "unigram-offsets.bin": "3103c2d0332dcd88c0e1bd72f1d45ea45c442d6efe79363afaf2f77506065326",
+    "unigram-postings.bin": "840fcbd086eea72ffce991964a921aae9dbbb7dc1acf75a4dc1d99573cf71130",
+    "vocabulary.marisa": "64de40dedd1f2736369391e3ecd3f0561b8b9769850828090b8c10b0ebcd525d"
   },
   "counts": {
-    "records": 14940,
-    "tokens": 1039600,
-    "trigram_keys": 382866,
-    "trigram_postings": 1009649,
-    "vocabulary": 40949
+    "records": 34153,
+    "tokens": 2313669,
+    "trigram_keys": 752008,
+    "trigram_postings": 2245171,
+    "vocabulary": 61075
   },
   "notices": {
     "LICENSES.md": "211ab9b99234f8b4c99f4e295cd29f0524d1a8508b10916c2ce84aa28ee4fde3",
-    "PROVENANCE.md": "f565245adb555fbe5b4d4a838369fd3c50e37de3f0302c5a0291c6a36c9517c7",
+    "PROVENANCE.md": "eb8858f0db9a9a64aa2621f5edee407238066a4c4a27f6b1b13d77ef0bdb150c",
     "README.md": "fc207de3c37457f4cd02075cdd1f76562905f7b5efe7cdaf3c0e2ae0a51bc9fc",
     "SOURCES.md": "a395c79251f54b1b780a475c32480f968d277b71a04017af18227df3e9545e53",
     "UPSTREAM-UNLICENSE.txt": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
@@ -28,8 +28,12 @@
   },
   "source_dataset": {
     "configurations": [
+      "abudawud-ar",
       "bukhari-ar",
-      "muslim-ar"
+      "ibnmajah-ar",
+      "muslim-ar",
+      "nasai-ar",
+      "tirmidhi-ar"
     ],
     "repository": "quranlab/hadith",
     "revision": "cc6972dae1f46f5f5e2b65e877d24c4539bc4391"

@@ -29,16 +29,19 @@ corpus_module = __import__("tools.exact_benchmark.corpus", fromlist=["Corpus"])
 oracle = __import__("tools.exact_benchmark.oracle", fromlist=["detect"])
 
 
-def prepared(path: Path, texts: list[str]) -> tuple[Path, list[dict]]:
+def prepared(
+    path: Path, texts: list[str], collections: list[str] | None = None
+) -> tuple[Path, list[dict]]:
     path.mkdir()
     rows = []
     tokens = []
     for i, text in enumerate(texts, 1):
+        collection = collections[i - 1] if collections is not None else "fixture"
         row = {
-            "hadith_key": f"fixture:{i}",
+            "hadith_key": f"{collection}:{i}",
             "urn": 100 + i,
             "seq": i,
-            "collection": "fixture",
+            "collection": collection,
             "language": "ar",
             "hadith_number": str(i),
             "number_sort": i,
@@ -69,8 +72,10 @@ def prepared(path: Path, texts: list[str]) -> tuple[Path, list[dict]]:
     return path, rows
 
 
-def build_fixture(tmp_path: Path, texts: list[str]) -> tuple[Path, list[dict]]:
-    source, rows = prepared(tmp_path / "prepared", texts)
+def build_fixture(
+    tmp_path: Path, texts: list[str], collections: list[str] | None = None
+) -> tuple[Path, list[dict]]:
+    source, rows = prepared(tmp_path / "prepared", texts, collections)
     output = tmp_path / "index"
     # Only the builder's pinned-version check is replaced for synthetic tests on
     # other Pythons; real CLI builds continue to require Python 3.14.
@@ -78,6 +83,33 @@ def build_fixture(tmp_path: Path, texts: list[str]) -> tuple[Path, list[dict]]:
         patch.setattr(builder.sys, "version_info", (3, 14))
         builder.build(source, output)
     return output, rows
+
+
+@pytest.mark.parametrize("errors", [0, 1])
+def test_collection_filter_before_span_selection(tmp_path, errors):
+    from hadith_detector import annotate, detect
+
+    short = "الف باء جيم دال هاء"
+    long = short + " واو زاي"
+    index, _ = build_fixture(tmp_path, [short, long], ["one", "two"])
+    selection = ["one"]
+    detector = HadithDetector.from_directory(index, collections=selection)
+    selection[:] = ["two"]
+    scoped = detector.detect(long, max_errors=errors)
+    assert [match.text for match in scoped] == [short]
+    assert [ref.record.hadith_key for ref in scoped[0].references] == ["one:1"]
+    assert detector.detect(long, max_errors=errors, collections=["two"])[0].text == long
+    assert detector.detect(long, collections=["two", "one", "one"])[0].text == long
+    assert detector.get_hadith("two:2").text == long
+    assert detector.annotate(long) == annotate(long, index_dir=index, collections=["one"])
+    assert detector.annotate(long, collections=["two"]) == annotate(long, index_dir=index)
+    assert detect(long, index_dir=index, collections=["one"])[0].text == short
+    assert detect(long, index_dir=index)[0].text == long
+    for invalid in ([], "one", ["absent"], [1]):
+        with pytest.raises(ValueError):
+            detector.detect("", collections=invalid)
+        with pytest.raises(ValueError):
+            HadithDetector(index, collections=invalid)
 
 
 def project(results):

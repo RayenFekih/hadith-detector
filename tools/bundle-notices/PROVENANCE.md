@@ -1,14 +1,16 @@
 # Bundled corpus provenance and redistribution record
 
-This package includes the Arabic `bukhari-ar` and `muslim-ar` configurations from
-QuranLab Hadith revision `cc6972dae1f46f5f5e2b65e877d24c4539bc4391`: 7,580 and
-7,360 records respectively. Original fields, identities, duplicate narrations,
+This package includes 34,153 Arabic records from QuranLab Hadith revision
+`cc6972dae1f46f5f5e2b65e877d24c4539bc4391`.
+The configurations are `abudawud-ar` (5,272), `bukhari-ar` (7,580),
+`ibnmajah-ar` (4,338), `muslim-ar` (7,360), `nasai-ar` (5,679), and
+`tirmidhi-ar` (3,924). Original fields, identities, duplicate narrations,
 nullable URLs and source text are preserved. Tokens and the prebuilt MARISA v2
 index are derived resources; normalization version is 1.
 
 Credit **QuranLab** (<https://huggingface.co/datasets/quranlab/hadith>) and
 **fawazahmed0/hadith-api** (<https://github.com/fawazahmed0/hadith-api>).
-The pinned `configs.csv` attributes both selected configurations to hadith-api,
+The pinned `configs.csv` attributes all six configurations to hadith-api,
 describes classical Arabic text as public domain, and marks commercial use as
 allowed. Upstream's Unlicense permits copying, modification and redistribution.
 Its preserved text was retrieved at commit
@@ -21,9 +23,15 @@ The broad QuranLab `LICENSES.md` summary attributes Arabic material to
 Open-Hadith-Data and mentions ODbL/DbCL. The selected configuration rows instead
 identify hadith-api. `SOURCES.md` identifies Open-Hadith-Data with Ahmad/Darimi,
 which are not bundled. Both notices are preserved verbatim, alongside the full
-pinned configuration and collection metadata. This package follows the selected
-configurations' attribution and the maintainer's approved Phase 2 provenance
-decision; the broad summary is not rewritten or presented as consistent.
+pinned configuration and collection metadata. Configuration-specific attribution
+follows the same evidence used for Bukhari and Muslim in Phase 2.
+
+The four added files include grade labels and named grader attributions as supplied
+by QuranLab. Their Parquet schema has no per-row license field. The configuration
+metadata identifies public-domain Arabic matn and the hadith-api compilation.
+The upstream Unlicense documents the compilation's terms, while the metadata does
+not independently establish rights for each grader's annotations. Confirm the
+redistribution basis for these fields before public release.
 
 Only the selected Arabic records are redistributed: no translations, HadeethEnc
 text, Ahmad/Darimi records, or text scraped from sunnah.com. Source links and

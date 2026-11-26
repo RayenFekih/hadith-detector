@@ -1,6 +1,6 @@
-# Public API (Phases 5A and 5B)
+# Public API
 
-The package contains one combined Sahih Bukhari/Sahih Muslim corpus with prebuilt
+The package contains the six Arabic collections listed below with prebuilt
 MARISA v2 resources. Constructors and convenience functions use it when `index_dir`
 is omitted or `None`; explicit directories retain their behavior and never fall
 back silently. No corpus resources are downloaded or rebuilt at runtime. Standard unpacked pip
@@ -39,6 +39,31 @@ Python 3.11–3.14, index format 2, normalization version 1, matching rules and
 runtime dependency requirements are unchanged.
 Phase 7 additionally makes resource selection optional: constructor and convenience
 `index_dir=None` means the bundled corpus. `from_directory()` still requires a directory.
+
+## Collection selection
+
+`HadithDetector` and `HadithDetector.from_directory()` accept a keyword-only
+`collections` argument. The default searches all loaded collections. A
+`collections` argument on instance `detect()` or `annotate()` replaces the
+instance selection for that call. Omission or `None` uses the instance default.
+Module-level `detect()` and `annotate()` also accept a per-call selection.
+
+The bundled IDs are `abudawud`, `bukhari`, `ibnmajah`, `muslim`, `nasai`, and
+`tirmidhi`. Supply a nonempty collection of string IDs. Empty selections, bare
+strings, non-string IDs, and IDs absent from the loaded index raise `ValueError`.
+Order and duplicate IDs do not affect results. Selection applies before span
+selection and Jev scoring. `get_hadith(key)` can retrieve any loaded record.
+
+```python
+from hadith_detector import HadithDetector, annotate
+
+text = "أخبرنا قتيبة بن سعيد قال حدثنا سفيان عن الزهري"
+detector = HadithDetector(collections=("bukhari", "muslim"))
+assert detector.detect(text, min_match_words=9) == []
+matches = detector.detect(text, min_match_words=9, collections=("nasai",))
+assert any(ref.record.hadith_key == "nasai:1" for m in matches for ref in m.references)
+html = annotate(text, min_match_words=9, collections=("nasai",))
+```
 
 ## Convenience calls and lifetime
 
@@ -100,6 +125,10 @@ References, occurrences and traces restore as tuples. Records serialize their
 original fields flat, including additional metadata and nullable URLs. Frozen
 attributes may contain mutable metadata snapshots; serialization and restoration
 copy them independently of the input payload and detector resources.
+
+Source grading metadata is available in `grades`, `n_grades`, and
+`grade_summary`. These fields retain the dataset's labels and grader names.
+An empty grade list indicates that the dataset supplied no grades for the record.
 
 Deserialization validates required/unknown structural fields, types, finite JSON
 metadata, nonnegative counts, nonempty exclusive-end spans and available text
